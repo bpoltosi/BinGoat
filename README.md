@@ -4,7 +4,8 @@ O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O 
 
 ## Estado atual
 
-- **Aplicação C de terminal:** implementação original preservada em `TrabalhoBingo.c`.
+- **Motor C reutilizável:** regras e estado em `bingo_engine.c` / `bingo_engine.h`.
+- **CLI:** interface de terminal em `TrabalhoBingo.c`, consumindo o motor compartilhado.
 - **Frontend web:** estrutura inicial criada com Vite, HTML, CSS e JavaScript.
 - **Integração HTTP:** cliente base preparado em `src/services/api.js`; ainda depende da implementação dos endpoints no backend C.
 - **Máquina de bingo e animações:** ainda não implementadas nesta etapa.
@@ -38,20 +39,20 @@ A versão web deverá preservar essas regras. O backend em C será a única font
 ### Linux e macOS
 
 ```bash
-gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c -o bingo
+gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo
 ./bingo
 ```
 
 ### Windows (MinGW-w64)
 
 ```bash
-gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c -o bingo.exe
+gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo.exe
 bingo.exe
 ```
 
 ## Testes de caracterização do motor C
 
-A suíte registra as regras atuais antes da extração do motor e pode ser executada sem iniciar o servidor Node.js ou o frontend.
+A suíte protege o comportamento do CLI e valida a API pública do motor extraído, sem iniciar Node.js ou frontend.
 
 - Linux/macOS: `sh tests/run-tests.sh`
 - Windows com MinGW-w64: `.\tests\run-tests.ps1`
@@ -103,7 +104,7 @@ BinGoat/
         └── api.js            # cliente HTTP para a futura API C
 ```
 
-A arquitetura final prevista é:
+A arquitetura atual separa domínio e interfaces:\n\n- `bingo_engine.h` / `bingo_engine.c`: tipos e operações reutilizáveis, sem I/O de terminal, HTTP ou JSON.\n- `TrabalhoBingo.c`: interface CLI que chama o motor.\n\nA arquitetura final prevista é:
 
 - **C:** regras e estado da partida.
 - **CivetWeb + cJSON:** servidor HTTP e serialização JSON no backend.

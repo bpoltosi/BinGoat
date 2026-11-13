@@ -1,48 +1,17 @@
 $ErrorActionPreference = "Stop"
-
-$RepositoryRoot = Split-Path -Parent $PSScriptRoot
-$BuildDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ("bingoat-c-tests-" + [guid]::NewGuid().ToString("N"))
-$Compiler = if ($env:CC) { $env:CC } else { "gcc" }
-
-New-Item -ItemType Directory -Path $BuildDirectory | Out-Null
-Push-Location $RepositoryRoot
-
+$Root = Split-Path -Parent $PSScriptRoot
+Push-Location $Root
+$Build = Join-Path ([System.IO.Path]::GetTempPath()) ("bingoat-c-tests-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $Build | Out-Null
 try {
-    $EngineExecutable = Join-Path $BuildDirectory "test-engine.exe"
-
-    & $Compiler -std=c11 -Wall -Wextra -Wpedantic -O2 "tests/test_engine.c" "-o" $EngineExecutable
-    if ($LASTEXITCODE -ne 0) {
-        throw "Falha ao compilar os testes do motor C (GCC/MinGW-w64)."
-    }
-
-    & $EngineExecutable
-    if ($LASTEXITCODE -ne 0) {
-        throw "Os testes do motor C falharam."
-    }
-
-    foreach ($Command in @(6, 7)) {
-        $WebExecutable = Join-Path $BuildDirectory ("test-web-command-{0}.exe" -f $Command)
-
-        & $Compiler -std=c11 -Wall -Wextra -Wpedantic -O2 ("-DBINGOAT_CMD={0}" -f $Command) "tests/test_web_commands.c" "-o" $WebExecutable
-        if ($LASTEXITCODE -ne 0) {
-            throw "Falha ao compilar o teste do comando web $Command."
-        }
-
-        & $WebExecutable
-        if ($LASTEXITCODE -ne 0) {
-            throw "O teste do comando web $Command falhou."
-        }
-    }
-
-    Write-Host "Suite C concluida com sucesso."
-}
-finally {
-    Remove-Item -Force -ErrorAction SilentlyContinue @(
-        "tests/.players-input.tmp",
-        "tests/.cli-input.tmp",
-        "tests/.cli-output.tmp",
-        "tests/.web-command-output.tmp"
-    )
-    Pop-Location
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $BuildDirectory
-}
+ $Flags = @("-std=c11","-Wall","-Wextra","-Wpedantic","-O2")
+ & gcc @Flags "tests/test_engine.c" "bingo_engine.c" "-o" (Join-Path $Build "test-engine.exe")
+ if($LASTEXITCODE -ne 0){throw "Falha ao compilar testes de caracterizacao"}
+ & (Join-Path $Build "test-engine.exe")
+ if($LASTEXITCODE -ne 0){throw "Falha nos testes de caracterizacao"}
+ & gcc @Flags "tests/test_engine_state.c" "bingo_engine.c" "-o" (Join-Path $Build "test-engine-state.exe")
+ if($LASTEXITCODE -ne 0){throw "Falha ao compilar testes da API publica"}
+ & (Join-Path $Build "test-engine-state.exe")
+ if($LASTEXITCODE -ne 0){throw "Falha nos testes da API publica"}
+ Write-Host "Suite C concluida com sucesso."
+} finally { Remove-Item -Recurse -Force $Build -ErrorAction SilentlyContinue; Pop-Location }

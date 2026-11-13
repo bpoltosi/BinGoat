@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "TrabalhoBingo.c"
+      - "bingo_engine.c"
+      - "bingo_engine.h"
       - "tests/**"
       - ".github/workflows/c-engine-tests.yml"
   push:
@@ -11,6 +13,8 @@ on:
       - main
     paths:
       - "TrabalhoBingo.c"
+      - "bingo_engine.c"
+      - "bingo_engine.h"
       - "tests/**"
       - ".github/workflows/c-engine-tests.yml"
   workflow_dispatch:
