@@ -409,7 +409,7 @@ int bingo_game_sync(BingoGame *g,int count,const char *const names[],int regener
  for(i=0;i<count;i++) {
   if(i>=old||regenerate) { memset(&g->players[i],0,sizeof(Jogador)); g->players[i].id=i+1; geraCartela(&g->players[i].cartela); }
   g->players[i].id=i+1;
-  if(names&&names[i]&&names[i][0]) { strncpy(g->players[i].nome,names[i],sizeof(g->players[i].nome)-1); g->players[i].nome[sizeof(g->players[i].nome)-1]='\\0'; }
+  if(names&&names[i]&&names[i][0]) { strncpy(g->players[i].nome,names[i],sizeof(g->players[i].nome)-1); g->players[i].nome[sizeof(g->players[i].nome)-1]='\0'; }
  }
  g->qtdJogadores=count; g->autoMark=autoMark!=0; update_game(g); return 1;
 }
