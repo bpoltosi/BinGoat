@@ -49,6 +49,15 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c -o bingo.exe
 bingo.exe
 ```
 
+## Testes de caracterização do motor C
+
+A suíte registra as regras atuais antes da extração do motor e pode ser executada sem iniciar o servidor Node.js ou o frontend.
+
+- Linux/macOS: `sh tests/run-tests.sh`
+- Windows com MinGW-w64: `.\tests\run-tests.ps1`
+
+A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md).
+
 ## Executar o frontend web
 
 Na raiz do repositório:
