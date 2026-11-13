@@ -26,6 +26,12 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 
+# Temporários dos testes de caracterização do motor C
+tests/.players-input.tmp
+tests/.cli-input.tmp
+tests/.cli-output.tmp
+tests/.web-command-output.tmp
+
 # Variáveis locais e segredos
 .env
 .env.*
