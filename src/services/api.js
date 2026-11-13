@@ -3,9 +3,13 @@ const API_BASE_URL = "/api";
 /**
  * Cliente HTTP do frontend.
  *
- * Os endpoints serão disponibilizados pelo servidor C (CivetWeb).
- * Não há dados simulados: chamadas só devem ser feitas quando o backend
- * estiver em execução e os endpoints correspondentes estiverem implementados.
+ * Na implementação atual, as rotas são atendidas pela camada Node.js/Vite
+ * em src/server/cEngineRunner.js, que executa o motor TrabalhoBingo.c.
+ * A migração para um servidor HTTP nativo em C está documentada em
+ * docs/BACKEND-C-MIGRATION.md.
+ *
+ * O frontend usa caminhos relativos para manter o mesmo contrato durante
+ * a migração do backend.
  */
 export async function apiRequest(path, options = {}) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
