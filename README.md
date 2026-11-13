@@ -104,7 +104,12 @@ BinGoat/
         └── api.js            # cliente HTTP para a futura API C
 ```
 
-A arquitetura atual separa domínio e interfaces:\n\n- `bingo_engine.h` / `bingo_engine.c`: tipos e operações reutilizáveis, sem I/O de terminal, HTTP ou JSON.\n- `TrabalhoBingo.c`: interface CLI que chama o motor.\n\nA arquitetura final prevista é:
+A arquitetura atual separa domínio e interfaces:
+
+- `bingo_engine.h` / `bingo_engine.c`: tipos e operações reutilizáveis, sem I/O de terminal, HTTP ou JSON.
+- `TrabalhoBingo.c`: interface CLI que chama o motor.
+
+A arquitetura final prevista é:
 
 - **C:** regras e estado da partida.
 - **CivetWeb + cJSON:** servidor HTTP e serialização JSON no backend.
