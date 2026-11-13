@@ -1,0 +1,24 @@
+# Executáveis gerados
+bingo
+bingo.exe
+*.exe
+
+# Arquivos intermediários e objetos de compilação
+*.o
+*.obj
+*.out
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+
+# Artefatos de depuração
+*.pdb
+*.ilk
+*.dSYM/
+*.stackdump
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
