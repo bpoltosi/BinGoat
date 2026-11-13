@@ -64,7 +64,7 @@ int main(void)
     size_t bytes_read;
     int success = 0;
 
-    if (freopen(OUTPUT_PATH, "w", stdout) == NULL)
+    if (freopen(OUTPUT_PATH, "wb", stdout) == NULL)
     {
         fprintf(stderr, "Nao foi possivel redirecionar stdout do motor web.\n");
         goto cleanup;
@@ -84,7 +84,7 @@ int main(void)
         goto cleanup;
     }
 
-    file = fopen(OUTPUT_PATH, "r");
+    file = fopen(OUTPUT_PATH, "rb");
     if (file == NULL)
     {
         fprintf(stderr, "Nao foi possivel ler a saida JSON do motor web.\n");

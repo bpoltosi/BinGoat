@@ -10,7 +10,7 @@
  * - renomeia o main original para chamar o fluxo completo no teste final.
  */
 #define time(value) ((time_t)0)
-#define system(command) 0
+#define system(command) do { (void)(command); } while (0)
 #define main bingoat_cli_main
 #include "../TrabalhoBingo.c"
 #undef main
@@ -391,7 +391,7 @@ static int test_terminal_game_ends(void)
     }
     stdin_redirected = 1;
 
-    if (freopen(CLI_OUTPUT_PATH, "w", stdout) == NULL)
+    if (freopen(CLI_OUTPUT_PATH, "wb", stdout) == NULL)
     {
         fprintf(stderr, "Nao foi possivel redirecionar stdout no teste de terminal.\n");
         goto cleanup;
@@ -428,7 +428,7 @@ static int test_terminal_game_ends(void)
         goto cleanup;
     }
 
-    output_file = fopen(CLI_OUTPUT_PATH, "r");
+    output_file = fopen(CLI_OUTPUT_PATH, "rb");
     if (output_file == NULL)
     {
         fprintf(stderr, "Nao foi possivel ler a saida do jogo de terminal.\n");
