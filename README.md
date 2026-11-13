@@ -1,39 +1,65 @@
-# BinGoat — Bingo em C com interface web em desenvolvimento
+# BinGoat — Bingo em C com interface web
 
-O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O repositório mantém a aplicação de terminal original e prepara uma interface web independente, que futuramente consumirá uma API HTTP fornecida pelo backend em C.
+O BinGoat é uma aplicação de bingo com regras implementadas em C e uma interface web construída com HTML, CSS e JavaScript. O projeto preserva também a execução original pelo terminal.
 
-## Estado atual
+## Estado atual da implementação
 
-- **Aplicação C de terminal:** implementação original preservada em `TrabalhoBingo.c`.
-- **Frontend web:** estrutura inicial criada com Vite, HTML, CSS e JavaScript.
-- **Integração HTTP:** cliente base preparado em `src/services/api.js`; ainda depende da implementação dos endpoints no backend C.
-- **Máquina de bingo e animações:** ainda não implementadas nesta etapa.
-- **Dados:** o frontend não usa cartelas, jogadores ou sorteios fictícios.
+A branch `main` já possui uma interface web integrada à API. A integração atual, porém, ainda usa uma camada Node.js:
 
-## Regras atuais do jogo
+- **Motor:** `TrabalhoBingo.c` contém as regras de geração de cartelas, sorteio, marcação e vitória.
+- **Adaptador da API:** `src/server/cEngineRunner.js` recebe as requisições, mantém o estado da partida e executa o arquivo C usando `picoc-js`.
+- **Desenvolvimento:** `vite.config.js` registra o middleware da API junto ao Vite.
+- **Produção atual:** `server.js` atende as rotas HTTP e serve os arquivos gerados em `dist/`.
+- **Frontend:** `src/main.js` e os componentes visuais consomem a API por `src/services/api.js`.
+
+Assim, as regras do jogo são processadas pelo código C, mas o servidor HTTP e o estado entre requisições ainda dependem do Node.js. **O backend ainda não é um servidor C nativo.**
+
+A transição planejada para um servidor HTTP compilado em C está detalhada em [docs/BACKEND-C-MIGRATION.md](docs/BACKEND-C-MIGRATION.md). O documento descreve a extração do motor reutilizável, a adoção de CivetWeb e cJSON, a preservação do contrato da API e a remoção gradual da ponte Node.js.
+
+## Regras do jogo
 
 - De 2 a 5 jogadores por partida.
 - Cada cartela possui 15 números distintos entre 1 e 60.
-- As cartelas não contêm números repetidos ou consecutivos.
+- Os números de uma cartela são ordenados e não podem se repetir nem ser consecutivos.
 - Os sorteios não repetem números.
-- Os números sorteados são marcados automaticamente.
+- A marcação automática acompanha os números sorteados quando habilitada.
 - Um jogador vence ao completar os 15 números da cartela.
-- A partida termina quando todos vencem ou quando os 60 números são sorteados.
-
-A versão web deverá preservar essas regras. O backend em C será a única fonte da verdade para geração de cartelas, sorteios, marcações e identificação de vencedores.
+- A partida pode ser desfeita ou reiniciada.
 
 ## Requisitos
 
-### Aplicação C
-
-- GCC compatível com C11.
-
-### Frontend web
+### Interface web atual
 
 - Node.js 18 ou superior.
 - npm.
 
-## Executar a aplicação C
+### Aplicação de terminal em C
+
+- GCC compatível com C11 ou MinGW-w64 no Windows.
+
+A versão web atual executa o código C por meio de `picoc-js`; não exige GCC para iniciar a interface.
+
+## Executar a aplicação web
+
+Na raiz do repositório:
+
+```bash
+npm install
+npm run dev
+```
+
+Abra [http://localhost:3000](http://localhost:3000).
+
+Para executar a versão de produção atual:
+
+```bash
+npm run build
+npm start
+```
+
+O servidor atual atende a interface e a API na porta 3000. Os arquivos compilados do frontend ficam em `dist/`, que não deve ser versionada.
+
+## Executar a versão de terminal
 
 ### Linux e macOS
 
@@ -44,89 +70,48 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c -o bingo
 
 ### Windows (MinGW-w64)
 
-```bash
+```powershell
 gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c -o bingo.exe
-bingo.exe
+.\bingo.exe
 ```
 
-## Executar o frontend web
+## API atual
 
-Na raiz do repositório:
+A interface utiliza os seguintes endpoints:
 
-```bash
-npm install
-npm run dev
-```
+| Método | Endpoint | Finalidade |
+|---|---|---|
+| GET | `/api/health` | Verificar a disponibilidade da API |
+| GET | `/api/games/current` | Consultar a partida atual |
+| POST | `/api/games` | Criar uma partida |
+| POST | `/api/games/current/draw` | Sortear um número |
+| POST | `/api/games/current/toggle-board` | Alternar marcação no tabuleiro |
+| POST | `/api/games/current/toggle-card` | Alternar marcação em uma cartela |
+| POST | `/api/games/current/sync` | Sincronizar jogadores e opções |
+| POST | `/api/games/current/undo` | Desfazer o último sorteio |
+| POST | `/api/games/current/reset` | Limpar a partida ou gerar novas cartelas |
 
-O Vite exibirá no terminal o endereço local para abrir a interface no navegador.
+O estado da partida é mantido em memória pelo backend atual. Reiniciar o servidor encerra a partida; não há persistência em banco de dados.
 
-Para validar o build de produção:
-
-```bash
-npm run build
-npm run preview
-```
-
-O resultado do build é gerado em `dist/`, que não deve ser versionada.
-
-## Google AI Studio
-
-Esta branch contém a configuração mínima necessária para o AI Studio reconhecer e iniciar o frontend com npm:
-
-1. Importe a branch `web-app` do repositório.
-2. Aguarde a instalação das dependências declaradas em `package.json`.
-3. O comando de desenvolvimento configurado é `npm run dev`.
-4. A aplicação inicial informa explicitamente que o backend ainda não está conectado.
-
-Se a importação tiver sido feita enquanto outra branch estava selecionada, confirme que o AI Studio está usando `web-app`, e não `main`.
-
-## Arquitetura planejada
+## Arquitetura atual
 
 ```text
-BinGoat/
-├── TrabalhoBingo.c          # aplicação C original de terminal
-├── package.json             # scripts e dependências do frontend
-├── index.html               # ponto de entrada do Vite
-└── src/
-    ├── main.js               # inicialização da interface
-    ├── style.css             # estilos responsivos
-    └── services/
-        └── api.js            # cliente HTTP para a futura API C
+Navegador
+  HTML + CSS + JavaScript
+          |
+          | HTTP / JSON
+          v
+Node.js / Vite
+  src/server/cEngineRunner.js
+          |
+          | picoc-js
+          v
+TrabalhoBingo.c
+  regras do jogo e saída JSON
 ```
 
-A arquitetura final prevista é:
+## Próxima evolução
 
-- **C:** regras e estado da partida.
-- **CivetWeb + cJSON:** servidor HTTP e serialização JSON no backend.
-- **Vite:** ambiente de desenvolvimento e build do frontend.
-- **HTML/CSS/JavaScript/SVG:** interface, cartelas e animações 2D.
+A próxima etapa arquitetural é substituir o adaptador Node.js por um servidor HTTP nativo em C, mantendo o frontend e o contrato atual da API. O plano está em [Migração do backend para C nativo](docs/BACKEND-C-MIGRATION.md).
 
-O frontend deverá consumir a API por caminhos relativos sob `/api`. Em desenvolvimento, o Vite poderá encaminhar essas requisições ao servidor C por meio de um proxy. Em produção, o servidor HTTP poderá servir os arquivos gerados em `dist/`.
-
-## Endpoints previstos
-
-Os caminhos abaixo são parte do planejamento e **ainda não estão implementados**:
-
-- `GET /api/health`
-- `POST /api/games`
-- `GET /api/games/current`
-- `POST /api/games/current/draw`
-- `POST /api/games/current/reset`
-
-Até a implementação do backend e desses endpoints, a interface não deve simular respostas nem gerar dados de jogo no navegador.
-
-## Próximas etapas
-
-O desenvolvimento deve seguir o roadmap documentado no PR de planejamento da versão web:
-
-1. Separar o motor do bingo da interface de terminal.
-2. Criar o servidor HTTP em C.
-3. Implementar os endpoints e o contrato JSON.
-4. Evoluir o frontend para exibir jogadores e cartelas com dados reais.
-5. Criar a máquina de bingo 2D em SVG e suas animações.
-6. Integrar o fluxo de sorteio à resposta real da API.
-7. Validar a experiência completa e preservar a aplicação de terminal.
-
-## Escopo desta branch
-
-A branch `web-app` prepara apenas a base de execução do frontend. Ela não substitui a aplicação C, não implementa ainda o backend HTTP e não altera a branch `main`.
+A migração deverá preservar o executável de terminal e evitar duplicar as regras do bingo. O servidor C passará a manter o estado da partida, atender as rotas HTTP e servir o frontend compilado. Node.js/npm continuarão sendo usados apenas no fluxo de desenvolvimento e build do frontend.
