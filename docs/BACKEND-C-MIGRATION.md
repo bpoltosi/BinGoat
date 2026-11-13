@@ -59,7 +59,7 @@ Desenvolvimento:
   Vite (porta 3000) -- proxy /api --> Backend C (porta 8080)
 
 Produção:
-  Backend C serve a API e os arquivos estáticos de frontend/dist/
+  Backend C serve a API e os arquivos estáticos de dist/
 ```
 
 ### Organização sugerida
