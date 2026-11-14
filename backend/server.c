@@ -159,12 +159,12 @@ static int send_json(struct mg_connection *connection, int status, cJSON *json)
     request = mg_get_request_info(connection);
     if (mg_printf(
             connection,
-            "HTTP/1.1 %d %s\\r\\n"
-            "Content-Type: application/json; charset=utf-8\\r\\n"
-            "Cache-Control: no-store\\r\\n"
-            "X-Content-Type-Options: nosniff\\r\\n"
-            "Content-Length: %lu\\r\\n"
-            "Connection: close\\r\\n\\r\\n",
+            "HTTP/1.1 %d %s\r\n"
+            "Content-Type: application/json; charset=utf-8\r\n"
+            "Cache-Control: no-store\r\n"
+            "X-Content-Type-Options: nosniff\r\n"
+            "Content-Length: %lu\r\n"
+            "Connection: close\r\n\r\n",
             status,
             reason,
             (unsigned long)length) < 0) {
