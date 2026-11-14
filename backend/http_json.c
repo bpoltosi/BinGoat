@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int equals_ignore_case(const char *left, const char *right)
+{
+    while (*left != '\0' && *right != '\0') {
+        if (tolower((unsigned char)*left) != tolower((unsigned char)*right)) return 0;
+        left++;
+        right++;
+    }
+    return *left == '\0' && *right == '\0';
+}
+
 static int is_json_content_type(const char *value)
 {
     static const char expected[] = "application/json";
@@ -80,7 +90,7 @@ BingoHttpJsonResult bingo_http_read_json(
 
     for (i = 0; i < request->num_headers; i++) {
         if (request->http_headers[i].name != NULL &&
-            strcasecmp(request->http_headers[i].name, "Content-Type") == 0) {
+            equals_ignore_case(request->http_headers[i].name, "Content-Type")) {
             content_type = request->http_headers[i].value;
             break;
         }
