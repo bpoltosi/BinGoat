@@ -272,11 +272,11 @@ int bingo_api_init(void) {
     return state.ready;
 }
 void bingo_api_register(struct mg_context *server) {
-    mg_set_request_handler(server, "/api/games/current", current_get, NULL);
     mg_set_request_handler(server, "/api/games/current/draw", mutate, (void *)"draw");
     mg_set_request_handler(server, "/api/games/current/toggle-board", mutate, (void *)"toggle-board");
     mg_set_request_handler(server, "/api/games/current/toggle-card", mutate, (void *)"toggle-card");
     mg_set_request_handler(server, "/api/games/current/sync", mutate, (void *)"sync");
     mg_set_request_handler(server, "/api/games/current/undo", mutate, (void *)"undo");
     mg_set_request_handler(server, "/api/games/current/reset", mutate, (void *)"reset");
+    mg_set_request_handler(server, "/api/games/current", current_get, NULL);
 }
