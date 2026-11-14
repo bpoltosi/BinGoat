@@ -44,4 +44,7 @@ curl --fail --silent "${BASE_URL}/partida/123" | grep -q 'BinGoat static fixture
 STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' "${BASE_URL}/api/rota-inexistente")
 [ "${STATUS}" = "404" ]
 
+TRAVERSAL_STATUS=$(curl --path-as-is --silent --output /dev/null --write-out '%{http_code}' "${BASE_URL}/../README.md")
+[ "${TRAVERSAL_STATUS}" != "200" ]
+
 echo "Todos os testes HTTP do servidor passaram."
