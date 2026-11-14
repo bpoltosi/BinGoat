@@ -212,7 +212,8 @@ static int mutate(struct mg_connection *c, void *data) {
         }
         ok = bingo_game_draw(&state.game, &drawn);
     } else if (strcmp(action, "toggle-board") == 0) {
-        if (!get_int(body, "number", 0, 1, 60, &number) ||
+        if (!cJSON_GetObjectItemCaseSensitive(body, "number") ||
+            !get_int(body, "number", 0, 1, 60, &number) ||
             !get_bool(body, "autoMark", state.game.autoMark, &flag)) goto invalid;
         ok = bingo_game_toggle_board(&state.game, number);
         if (ok && cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
@@ -225,7 +226,9 @@ static int mutate(struct mg_connection *c, void *data) {
             }
         }
     } else if (strcmp(action, "toggle-card") == 0) {
-        if (!get_int(body, "playerId", 0, 1, MAX_JOGADORES, &player) ||
+        if (!cJSON_GetObjectItemCaseSensitive(body, "playerId") ||
+            !cJSON_GetObjectItemCaseSensitive(body, "number") ||
+            !get_int(body, "playerId", 0, 1, MAX_JOGADORES, &player) ||
             !get_int(body, "number", 0, 1, 60, &number)) goto invalid;
         ok = bingo_game_toggle_card(&state.game, player, number);
     } else if (strcmp(action, "sync") == 0) {

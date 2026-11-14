@@ -85,6 +85,8 @@ try {
     $TraversalStatus = & curl.exe --path-as-is --silent --output NUL --write-out "%{http_code}" "$BaseUrl/../README.md"
     if ($TraversalStatus -eq "200") { throw "O servidor permitiu acesso fora de dist/." }
 
+    python (Join-Path $Root "tests/test_api_contract.py")
+    if ($LASTEXITCODE -ne 0) { throw "Os testes completos do contrato da API falharam." }
     Write-Host "Todos os testes HTTP do servidor passaram."
 } finally {
     if (-not $Process.HasExited) {

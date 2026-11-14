@@ -88,4 +88,5 @@ BAD_JSON_STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' -X
 TRAVERSAL_STATUS=$(curl --path-as-is --silent --output /dev/null --write-out '%{http_code}' "${BASE_URL}/../README.md")
 [ "${TRAVERSAL_STATUS}" != "200" ]
 
+python3 "${ROOT_DIR}/tests/test_api_contract.py"
 echo "Todos os testes HTTP do servidor passaram."

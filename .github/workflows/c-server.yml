@@ -38,6 +38,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
       - name: Install frontend dependencies
         run: npm install --no-package-lock
       - name: Build production frontend
@@ -55,6 +58,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
