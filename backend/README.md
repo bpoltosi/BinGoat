@@ -1,6 +1,6 @@
 # Servidor HTTP nativo
 
-O executável `bingo-server` inicializa o motor reutilizável (`bingo_engine.c`) e o servidor CivetWeb. O módulo `backend/http_json.c` também oferece leitura de corpos JSON com `Content-Type` validado, limite de 1 MiB e erros explícitos para handlers da API. O contrato completo das rotas de jogo permanece na Issue #5; nesta etapa existe somente `GET /api/health`.
+O executável `bingo-server` inicializa o motor reutilizável (`bingo_engine.c`) e o servidor CivetWeb. O módulo `backend/http_json.c` também oferece leitura de corpos JSON com `Content-Type` validado, limite de 1 MiB e erros explícitos para handlers da API. O servidor expõe health check e operações de partida em `/api/games/current`, mantendo o motor C como fonte única do estado.
 
 ## Dependências fixadas
 
@@ -57,9 +57,9 @@ Após instalar GCC, CMake, Git e curl:
 - Linux/macOS: `sh tests/run-server-tests.sh`
 - Windows/MinGW-w64: `./tests/run-server-tests.ps1`
 
-Os testes compilam o executável, aguardam a prontidão, verificam o JSON do health check, a entrega do index/assets, o fallback SPA, 404 de API, rejeição de tentativa de sair de `dist/` e encerramento SIGTERM no Linux. A suíte unitária do parser JSON roda com `ctest --test-dir build --output-on-failure`. O workflow `.github/workflows/c-server.yml` executa build GCC/Linux, smoke tests e build MinGW-w64/Windows.
+Os testes compilam o executável, aguardam a prontidão, verificam o JSON do health check, a entrega do index/assets, o fallback SPA, 404 de API, rejeição de tentativa de sair de `dist/` e encerramento SIGTERM no Linux. A suíte unitária do parser JSON roda com `ctest --test-dir build --output-on-failure`. Os testes de fumaça também exercitam consulta, sorteio, marcação do tabuleiro e de cartela, sincronização, desfazer e reset. O workflow `.github/workflows/c-server.yml` executa build GCC/Linux, smoke tests e build MinGW-w64/Windows.
 
-## Health check
+## API de jogo\n\nTodas as respostas de sucesso são JSON e incluem `calledNumbers`, `boardLines`, `autoMark` e `players`. Cada jogador contém `id`, `name`, `numbers`, `markedNumbers`, `wonRound` (nulo enquanto não vence) e `lines`. Linhas completas incluem `key`, `orientation`, `label` e `numbers`. Os valores aceitos para `boardCols` são 5, 6 ou 10.\n\n| Método | Rota | Corpo / parâmetros |\n|---|---|---|\n| GET | `/api/games/current?boardCols=10` | `boardCols` opcional |\n| POST | `/api/games/current/draw` | `boardCols`, `autoMark` opcionais |\n| POST | `/api/games/current/toggle-board` | `number`, `boardCols`, `autoMark` |\n| POST | `/api/games/current/toggle-card` | `playerId`, `number`, `boardCols` |\n| POST | `/api/games/current/sync` | `playerCount`, `playerNames`, `regenerateCards`, `autoMark`, `boardCols` (todos opcionais) |\n| POST | `/api/games/current/undo` | `boardCols` opcional |\n| POST | `/api/games/current/reset` | `newCards`, `boardCols` opcionais |\n\nCorpos POST devem usar `Content-Type: application/json`. Erros retornam JSON com `error` e `code`; status usados incluem 400, 405, 409, 413, 415 e 503. A partida inicia com dois jogadores. `sync` aceita de 2 a 5 jogadores e nomes de até 32 caracteres.\n\n## Health check
 
 ```sh
 curl -i http://127.0.0.1:8080/api/health
@@ -79,7 +79,7 @@ O status é 200 somente depois que `bingo_game_init` conclui com sucesso. Se a i
 - Arquivos existentes são servidos pelo mecanismo estático do CivetWeb, que mantém a resolução de caminhos confinada à raiz configurada.
 - Rotas GET/HEAD sem extensão e fora de `/api` recebem fallback para o `dist/index.html`, permitindo navegação SPA.
 - Caminhos com segmentos de travessia, barras invertidas, codificação percentual ou caracteres de controle são rejeitados no fallback.
-- Rotas desconhecidas sob `/api` recebem 404 JSON e nunca caem no HTML da aplicação.
+- Rotas desconhecidas sob `/api` recebem 404 JSON e nunca caem no HTML da aplicação.\n- As operações da partida são serializadas por lock próprio; nenhuma referência ao estado é mantida após a resposta.
 - O servidor não cria, altera nem remove arquivos de `dist`.
 
 ## Concorrência e ciclo de vida
@@ -94,4 +94,4 @@ O frontend deve continuar chamando caminhos relativos `/api`. Durante o desenvol
 
 ## Fora do escopo
 
-Esta entrega não implementa criação/sorteio/consulta de partidas, não remove `server.js` ou `picoc-js` e não altera o frontend. Essas etapas dependem da API #5 e da integração #10.
+Esta entrega não remove `server.js` ou `picoc-js` nem altera o frontend; a migração completa da inicialização e do proxy permanece na integração #10.
