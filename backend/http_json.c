@@ -1,8 +1,11 @@
 #include "http_json.h"
 
 #include <ctype.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
+
+static atomic_flag g_cjson_parse_mutex = ATOMIC_FLAG_INIT;
 
 static int equals_ignore_case(const char *left, const char *right)
 {
@@ -56,7 +59,10 @@ BingoHttpJsonResult bingo_http_parse_json(
     memcpy(terminated_body, body, body_length);
     terminated_body[body_length] = '\0';
 
+    while (atomic_flag_test_and_set_explicit(&g_cjson_parse_mutex, memory_order_acquire)) {
+    }
     parsed = cJSON_ParseWithOpts(terminated_body, &parse_end, 0);
+    atomic_flag_clear_explicit(&g_cjson_parse_mutex, memory_order_release);
     if (parsed == NULL || parse_end == NULL) {
         cJSON_Delete(parsed);
         free(terminated_body);
