@@ -4,6 +4,7 @@
 #include "civetweb.h"
 #include "cJSON.h"
 
+#include <ctype.h>
 #include <signal.h>
 #include <stdatomic.h>
 #include <stdio.h>
