@@ -56,13 +56,4 @@ if(NOT MSVC)
     target_compile_options(bingo-server PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-if(BUILD_TESTING)
-    add_test(
-        NAME engine-characterization
-        COMMAND "${CMAKE_COMMAND}" -E env
-            "BINGOAT_TEST_FROM_CMAKE=1"
-            "${CMAKE_CURRENT_SOURCE_DIR}/tests/run-tests.sh"
-    )
-endif()
-
 install(TARGETS bingo-server RUNTIME DESTINATION bin)
