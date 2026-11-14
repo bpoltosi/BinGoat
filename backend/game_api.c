@@ -176,7 +176,7 @@ static int current_get(struct mg_connection *c, void *data) {
     const struct mg_request_info *ri = mg_get_request_info(c);
     (void)data;
     if (!ri || !ri->local_uri || strcmp(ri->local_uri, "/api/games/current") != 0)
-        return fail(c, 404, "NOT_FOUND", "Rota da API nao encontrada.");
+        return 0;
     if (!method_is(c, "GET") && !method_is(c, "HEAD")) return fail(c, 405, "METHOD_NOT_ALLOWED", "Metodo nao permitido.");
     if (!query_cols(c, &cols)) return fail(c, 400, "INVALID_BOARD_COLUMNS", "boardCols deve ser 5, 6 ou 10.");
     return send_game(c, cols, 0);
@@ -196,7 +196,7 @@ static int mutate(struct mg_connection *c, void *data) {
     char nameBuffers[MAX_JOGADORES][50];
     int i;
     if (!ri || !ri->local_uri || strcmp(ri->local_uri, expected) != 0)
-        return fail(c, 404, "NOT_FOUND", "Rota da API nao encontrada.");
+        return 0;
     if (!method_is(c, "POST")) return fail(c, 405, "METHOD_NOT_ALLOWED", "Metodo nao permitido.");
     if (!read_body(c, &body)) return 400;
     if (!get_int(body, "boardCols", 10, 5, 10, &cols) || (cols != 5 && cols != 6 && cols != 10)) {
