@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "bingo_engine.h"
+#include "game_api.h"
 #include "civetweb.h"
 #include "cJSON.h"
 
@@ -337,7 +338,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (!initialize_engine()) {
+    if (!initialize_engine() || !bingo_api_init()) {
         fprintf(stderr, "Aviso: motor indisponivel; health check respondera HTTP 503.\n");
     }
 
@@ -366,6 +367,7 @@ int main(int argc, char **argv)
     }
 
     mg_set_request_handler(server, "/api/health", health_handler, NULL);
+    bingo_api_register(server);
     mg_set_request_handler(server, "/api", api_not_found_handler, NULL);
     mg_set_request_handler(server, "/", spa_fallback_handler, index_path);
 
