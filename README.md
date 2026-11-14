@@ -7,7 +7,7 @@ O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O 
 - **Motor C reutilizável:** regras e estado em `bingo_engine.c` / `bingo_engine.h`.
 - **CLI:** interface de terminal em `TrabalhoBingo.c`, consumindo o motor compartilhado.
 - **Frontend web:** estrutura inicial criada com Vite, HTML, CSS e JavaScript.
-- **Servidor HTTP nativo:** executável `bingo-server`, health check em `GET /api/health` e entrega de arquivos de `dist/`; as rotas de jogo ainda dependem da Issue #5.
+- **Servidor HTTP nativo:** executável `bingo-server`, health check em `GET /api/health`, entrega de `dist/` e utilitário cJSON para leitura validada de corpos JSON; as rotas de jogo ainda dependem da Issue #5.
 - **Máquina de bingo e animações:** ainda não implementadas nesta etapa.
 - **Dados:** o frontend não usa cartelas, jogadores ou sorteios fictícios.
 
