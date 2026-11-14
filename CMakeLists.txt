@@ -57,7 +57,7 @@ if(NOT MSVC)
     target_compile_options(bingo_http_json PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(bingo-server backend/server.c)
+add_executable(bingo-server backend/server.c backend/game_api.c)
 target_link_libraries(bingo-server PRIVATE
     bingo_engine
     bingo_http_json
