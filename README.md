@@ -57,7 +57,7 @@ A suíte protege o comportamento do CLI e valida a API pública do motor extraí
 - Linux/macOS: `sh tests/run-tests.sh`
 - Windows com MinGW-w64: `.\tests\run-tests.ps1`
 
-A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md). Após instalar as dependências e compilar o frontend, valide também o proxy com `sh tests/run-vite-proxy-test.sh`.
+A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md).
 
 ## Executar o frontend web
 
@@ -69,7 +69,7 @@ cmake --build build --config Release
 ./build/bingo-server --host 127.0.0.1 --port 8080 --dist .
 ```
 
-No Windows com MinGW-w64, use `cmake -S . -B build -G "MinGW Makefiles"`, `cmake --build build` e inicie `.\build\bingo-server.exe --host 127.0.0.1 --port 8080 --dist .`.
+No Windows com MinGW-w64, use `cmake -S . -B build -G "MinGW Makefiles"`, `cmake --build build` e inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist .`.
 
 Em outro terminal, execute:
 
@@ -87,7 +87,7 @@ npm run build
 ./build/bingo-server --host 127.0.0.1 --port 8080 --dist dist
 ```
 
-No Windows, inicie `.\build\bingo-server.exe --host 127.0.0.1 --port 8080 --dist dist`. O executável C atende tanto a API quanto os arquivos gerados em `dist/`; o Node.js permanece necessário para instalar dependências e executar o Vite/build. O diretório `dist/` não deve ser versionado.
+No Windows, inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist dist`. O executável C atende tanto a API quanto os arquivos gerados em `dist/`; o Node.js permanece necessário para instalar dependências e executar o Vite/build. O diretório `dist/` não deve ser versionado.
 
 ## Google AI Studio
 

@@ -52,7 +52,7 @@ until curl --fail --silent "${SERVER_URL}/api/health" >/dev/null; do
     sleep 1
 done
 
-BINGOAT_API_TARGET="${SERVER_URL}" npm run dev -- --host 127.0.0.1 --port "${VITE_PORT}" --strictPort >"${VITE_LOG}" 2>&1 &
+BINGOAT_API_TARGET="${SERVER_URL}" "${ROOT_DIR}/node_modules/.bin/vite" --host 127.0.0.1 --port "${VITE_PORT}" --strictPort >"${VITE_LOG}" 2>&1 &
 VITE_PID=$!
 
 attempt=0
