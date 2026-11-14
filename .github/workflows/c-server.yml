@@ -7,6 +7,10 @@ on:
       - "backend/**"
       - "bingo_engine.c"
       - "bingo_engine.h"
+      - "package.json"
+      - "bun.lock"
+      - "vite.config.js"
+      - "README.md"
       - "tests/run-server-tests.*"
       - "tests/run-vite-proxy-test.sh"
       - ".github/workflows/c-server.yml"
@@ -17,7 +21,12 @@ on:
       - "backend/**"
       - "bingo_engine.c"
       - "bingo_engine.h"
+      - "package.json"
+      - "bun.lock"
+      - "vite.config.js"
+      - "README.md"
       - "tests/run-server-tests.*"
+      - "tests/run-vite-proxy-test.sh"
       - ".github/workflows/c-server.yml"
   workflow_dispatch:
 
@@ -29,10 +38,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install frontend dependencies
+        run: npm install --no-package-lock
       - name: Build production frontend
-        run: |
-          npm install --no-package-lock
-          npm run build
+        run: npm run build
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build
