@@ -15,6 +15,7 @@
 #include <windows.h>
 #else
 #include <errno.h>
+#include <sched.h>
 #include <unistd.h>
 #endif
 
@@ -145,7 +146,8 @@ static int send_json(struct mg_connection *connection, int status, cJSON *json)
 {
     char *body;
     size_t length;
-    int result;
+    const char *reason;
+    const struct mg_request_info *request;
 
     body = cJSON_PrintUnformatted(json);
     if (body == NULL) {
@@ -153,15 +155,26 @@ static int send_json(struct mg_connection *connection, int status, cJSON *json)
     }
 
     length = strlen(body);
-    mg_response_header_start(connection, status);
-    mg_response_header_add(connection, "Content-Type", "application/json; charset=utf-8", -1);
-    mg_response_header_add(connection, "Cache-Control", "no-store", -1);
-    mg_response_header_add(connection, "X-Content-Type-Options", "nosniff", -1);
-    result = mg_response_header_send(connection);
-    if (result == 0) {
-        (void)mg_write(connection, body, length);
+    reason = status == 200 ? "OK" : (status == 503 ? "Service Unavailable" : "Not Found");
+    request = mg_get_request_info(connection);
+    if (mg_printf(
+            connection,
+            "HTTP/1.1 %d %s\\r\\n"
+            "Content-Type: application/json; charset=utf-8\\r\\n"
+            "Cache-Control: no-store\\r\\n"
+            "X-Content-Type-Options: nosniff\\r\\n"
+            "Content-Length: %lu\\r\\n"
+            "Connection: close\\r\\n\\r\\n",
+            status,
+            reason,
+            (unsigned long)length) < 0) {
+        cJSON_free(body);
+        return status;
     }
 
+    if (request == NULL || strcmp(request->request_method, "HEAD") != 0) {
+        (void)mg_write(connection, body, length);
+    }
     cJSON_free(body);
     return status;
 }
