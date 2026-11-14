@@ -41,7 +41,7 @@ try {
 
     $Asset = Get-ChildItem $Static -Recurse -File | Where-Object { $_.FullName -ne $IndexPath } | Select-Object -First 1
     if ($null -ne $Asset) {
-        $RelativeAsset = $Asset.FullName.Substring($Static.Length).TrimStart("\\", "/").Replace("\\", "/")
+        $RelativeAsset = $Asset.FullName.Substring($Static.Length).TrimStart([char[]]@([char]92, [char]47)).Replace([string][char]92, "/")
         $AssetResponse = Join-Path $Build "asset-response"
         Invoke-WebRequest "$BaseUrl/$RelativeAsset" -UseBasicParsing -OutFile $AssetResponse
         if ((Get-FileHash $Asset.FullName).Hash -ne (Get-FileHash $AssetResponse).Hash) {
