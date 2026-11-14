@@ -193,8 +193,9 @@ static int mutate(struct mg_connection *c, void *data) {
     } else if (strcmp(action, "toggle-board") == 0) {
         if (!get_int(body, "number", 0, 1, 60, &number)) goto invalid;
         ok = bingo_game_toggle_board(&state.game, number);
-        if (ok && cJSON_GetObjectItemCaseSensitive(body, "autoMark") &&
-            get_bool(body, "autoMark", state.game.autoMark, &flag)) {
+        if (cJSON_GetObjectItemCaseSensitive(body, "autoMark") &&
+            !get_bool(body, "autoMark", state.game.autoMark, &flag)) goto invalid;
+        if (ok && cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
             state.game.autoMark = flag;
             if (flag) {
                 int k; for (k = 0; k < state.game.qtdJogadores; k++)
@@ -221,7 +222,10 @@ static int mutate(struct mg_connection *c, void *data) {
                 if (len == 0 || len > 32) goto invalid;
                 snprintf(nameBuffers[i], sizeof(nameBuffers[i]), "%s", entry->valuestring);
                 names[i] = nameBuffers[i];
-            } else if (i < state.game.qtdJogadores) names[i] = state.game.players[i].nome;
+            } else if (i < state.game.qtdJogadores) {
+                snprintf(nameBuffers[i], sizeof(nameBuffers[i]), "%s", state.game.players[i].nome);
+                names[i] = nameBuffers[i];
+            }
         }
         if (!get_bool(body, "autoMark", state.game.autoMark, &player)) goto invalid;
         ok = bingo_game_sync(&state.game, count, names, flag, player);
