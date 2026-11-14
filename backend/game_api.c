@@ -205,6 +205,10 @@ static int mutate(struct mg_connection *c, void *data) {
     lock_state();
     if (!state.ready) { unlock_state(); cJSON_Delete(body); return fail(c, 503, "ENGINE_NOT_READY", "Motor do bingo indisponivel."); }
     if (strcmp(action, "draw") == 0) {
+        if (bingo_game_finished(&state.game)) {
+            unlock_state(); cJSON_Delete(body);
+            return fail(c, 409, "GAME_FINISHED", "A partida ja foi concluida.");
+        }
         ok = bingo_game_draw(&state.game, &drawn);
     } else if (strcmp(action, "toggle-board") == 0) {
         if (!get_int(body, "number", 0, 1, 60, &number) ||
