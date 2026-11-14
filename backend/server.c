@@ -338,8 +338,7 @@ int main(int argc, char **argv)
     }
 
     if (!initialize_engine()) {
-        fprintf(stderr, "Nao foi possivel inicializar o motor do bingo.\n");
-        return EXIT_FAILURE;
+        fprintf(stderr, "Aviso: motor indisponivel; health check respondera HTTP 503.\\n");
     }
 
     if ((mg_init_library(MG_FEATURES_FILES) & MG_FEATURES_FILES) == 0) {
