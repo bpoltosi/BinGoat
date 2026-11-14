@@ -55,7 +55,8 @@ cmp "${STATIC_ROOT}/index.html" "${BUILD_DIR}/spa-response.html"
 
 ASSET=$(find "${STATIC_ROOT}" -type f ! -name index.html | head -n 1 || true)
 if [ -n "${ASSET}" ]; then
-    ASSET_PATH=$(printf '%s' "${ASSET#"${STATIC_ROOT}"/}" | sed 's#\\#/#g')
+    ASSET_PATH=${ASSET#"$STATIC_ROOT"/}
+    ASSET_PATH=$(printf '%s' "$ASSET_PATH" | sed 's#\\#/#g')
     curl --fail --silent "${BASE_URL}/${ASSET_PATH}" > "${BUILD_DIR}/asset-response"
     cmp "${ASSET}" "${BUILD_DIR}/asset-response"
 fi
