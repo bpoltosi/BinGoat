@@ -67,6 +67,10 @@ def main():
     status, health = request("/api/health")
     expect(status == 200 and health.get("status") == "ok" and health.get("engine") == "ready",
            "health check did not report a ready engine")
+    status, _ = request("/api/games/current/reset", "POST", {"newCards": True})
+    expect(status == 200, "initial isolation reset failed")
+    status, _ = sync(2, ["Jogador 1", "Jogador 2"], True)
+    expect(status == 200, "initial two-player setup failed")
     initial = game()
     validate_cards(initial["players"])
     expect(len(initial["players"]) == 2 and initial["calledNumbers"] == [],
