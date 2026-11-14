@@ -64,6 +64,24 @@ fi
 
 STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' "${BASE_URL}/api/rota-inexistente")
 [ "${STATUS}" = "404" ]
+# Game API contract and state transitions
+GAME=$(curl --fail --silent "${BASE_URL}/api/games/current?boardCols=10")
+printf '%s' "${GAME}" | grep -q '"calledNumbers":\[\]'
+printf '%s' "${GAME}" | grep -q '"players":\['
+DRAW=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"boardCols":10,"autoMark":true}' "${BASE_URL}/api/games/current/draw")
+printf '%s' "${DRAW}" | grep -q '"drawnNumber":'
+TOGGLE=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"number":60,"boardCols":10,"autoMark":true}' "${BASE_URL}/api/games/current/toggle-board")
+printf '%s' "${TOGGLE}" | grep -q '"calledNumbers":\['
+CARD=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"playerId":1,"number":1,"boardCols":10}' "${BASE_URL}/api/games/current/toggle-card")
+printf '%s' "${CARD}" | grep -q '"markedNumbers":\['
+SYNC=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"playerCount":3,"playerNames":["Ana","Bia","Caio"],"autoMark":true,"boardCols":10}' "${BASE_URL}/api/games/current/sync")
+printf '%s' "${SYNC}" | grep -q '"name":"Caio"'
+UNDO=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"boardCols":10}' "${BASE_URL}/api/games/current/undo")
+printf '%s' "${UNDO}" | grep -q '"players":\['
+RESET=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"newCards":true,"boardCols":10}' "${BASE_URL}/api/games/current/reset")
+printf '%s' "${RESET}" | grep -q '"calledNumbers":\[\]'
+BAD_JSON_STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"number":99}' "${BASE_URL}/api/games/current/toggle-board")
+[ "${BAD_JSON_STATUS}" = "400" ]
 
 TRAVERSAL_STATUS=$(curl --path-as-is --silent --output /dev/null --write-out '%{http_code}' "${BASE_URL}/../README.md")
 [ "${TRAVERSAL_STATUS}" != "200" ]
