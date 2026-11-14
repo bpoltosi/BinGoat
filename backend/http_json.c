@@ -60,7 +60,7 @@ BingoHttpJsonResult bingo_http_parse_json(
         terminated_body,
         body_length + 1U,
         &parse_end,
-        1
+        0
     );
     if (parsed == NULL || parse_end == NULL) {
         cJSON_Delete(parsed);
