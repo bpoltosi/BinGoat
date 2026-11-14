@@ -1,6 +1,6 @@
 # Servidor HTTP nativo
 
-O executável `bingo-server` inicializa o motor reutilizável (`bingo_engine.c`) e o servidor CivetWeb. O contrato completo das rotas de jogo permanece na Issue #5; nesta etapa existe somente `GET /api/health`.
+O executável `bingo-server` inicializa o motor reutilizável (`bingo_engine.c`) e o servidor CivetWeb. O módulo `backend/http_json.c` também oferece leitura de corpos JSON com `Content-Type` validado, limite de 1 MiB e erros explícitos para handlers da API. O contrato completo das rotas de jogo permanece na Issue #5; nesta etapa existe somente `GET /api/health`.
 
 ## Dependências fixadas
 
@@ -57,7 +57,7 @@ Após instalar GCC, CMake, Git e curl:
 - Linux/macOS: `sh tests/run-server-tests.sh`
 - Windows/MinGW-w64: `./tests/run-server-tests.ps1`
 
-Os testes compilam o executável, aguardam a prontidão, verificam o JSON do health check, a entrega do index, o fallback SPA, 404 de API e rejeição de tentativa de sair de `dist/`. O workflow `.github/workflows/c-server.yml` executa build GCC/Linux, smoke tests e build MinGW-w64/Windows.
+Os testes compilam o executável, aguardam a prontidão, verificam o JSON do health check, a entrega do index/assets, o fallback SPA, 404 de API, rejeição de tentativa de sair de `dist/` e encerramento SIGTERM no Linux. A suíte unitária do parser JSON roda com `ctest --test-dir build --output-on-failure`. O workflow `.github/workflows/c-server.yml` executa build GCC/Linux, smoke tests e build MinGW-w64/Windows.
 
 ## Health check
 
