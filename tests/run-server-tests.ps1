@@ -10,6 +10,7 @@ $BaseUrl = "http://127.0.0.1:$Port"
 
 cmake -S $Root -B $Build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
 cmake --build $Build --config Release
+ctest --test-dir $Build --output-on-failure
 
 $Process = Start-Process -FilePath $Server -ArgumentList @("--host", "127.0.0.1", "--port", $Port, "--dist", $Static) -PassThru -NoNewWindow
 try {
