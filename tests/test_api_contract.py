@@ -134,6 +134,8 @@ def main():
     validate_cards(snapshot["players"])
 
     # Manual marking, undo, and reset state.
+    status, _ = request("/api/games/current/reset", "POST", {"newCards": False})
+    expect(status == 200, "pre-marking reset failed")
     status, marked = request("/api/games/current/toggle-board", "POST",
                              {"number": 60, "autoMark": False})
     expect(status == 200 and 60 in marked["calledNumbers"], "manual board marking failed")
