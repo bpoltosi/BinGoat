@@ -1,34 +1,29 @@
 import { defineConfig } from "vite";
-import { handleApiRequest } from "./src/server/cEngineRunner.js";
 
-function bingoCPlugin() {
-  return {
-    name: "bingoat-c-engine-api",
-    configureServer(server) {
-      server.middlewares.use("/api", (req, res, next) => {
-        const pathname = `/api${(req.url || "/").split("?")[0]}`;
-        handleApiRequest(req, res, pathname).catch(next);
-      });
-    },
-    configurePreviewServer(server) {
-      server.middlewares.use("/api", (req, res, next) => {
-        const pathname = `/api${(req.url || "/").split("?")[0]}`;
-        handleApiRequest(req, res, pathname).catch(next);
-      });
-    },
-  };
-}
+const apiTarget =
+  process.env.BINGOAT_API_TARGET || "http://127.0.0.1:8080";
 
 export default defineConfig({
-  plugins: [bingoCPlugin()],
   server: {
     host: "0.0.0.0",
     port: 3000,
     allowedHosts: true,
+    proxy: {
+      "/api": {
+        target: apiTarget,
+        changeOrigin: false,
+      },
+    },
   },
   preview: {
     host: "0.0.0.0",
     port: 3000,
     allowedHosts: true,
+    proxy: {
+      "/api": {
+        target: apiTarget,
+        changeOrigin: false,
+      },
+    },
   },
 });

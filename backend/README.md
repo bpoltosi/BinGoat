@@ -90,8 +90,8 @@ O processo trata SIGINT/SIGTERM, interrompe o loop de espera, chama `mg_stop` pa
 
 ## Desenvolvimento com Vite
 
-O frontend deve continuar chamando caminhos relativos `/api`. Durante o desenvolvimento, configure o proxy do Vite para encaminhar `/api` ao servidor C em `http://127.0.0.1:8080`. A alteração efetiva do proxy e a remoção da ponte Node.js são escopo da Issue #16; o contrato de rotas é escopo da Issue #5.
+O frontend chama caminhos relativos `/api`. O proxy de desenvolvimento já está configurado em `vite.config.js` para encaminhar essas chamadas ao servidor C em `http://127.0.0.1:8080`. Para usar outro endereço, defina `BINGOAT_API_TARGET` antes de iniciar o Vite. Inicie o servidor C em um terminal e execute `npm run dev` em outro.
 
 ## Fora do escopo
 
-Esta entrega não remove `server.js` ou `picoc-js` nem altera o frontend; a migração completa da inicialização e do proxy permanece na integração #10.
+A integração do frontend com o servidor C e o proxy do Vite fazem parte da Issue #10. A remoção da ponte Node.js (`server.js`, `src/server/cEngineRunner.js` e `picoc-js`) permanece isolada na Issue #16.
