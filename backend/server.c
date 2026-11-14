@@ -63,15 +63,34 @@ static void request_shutdown(int signal_number)
 
 static int valid_port(const char *value)
 {
-    char *end = NULL;
-    long port;
+    const unsigned char *cursor = (const unsigned char *)value;
+    unsigned long port = 0;
 
     if (value == NULL || *value == '\0') {
         return 0;
     }
+    while (*cursor != '\0') {
+        if (!isdigit(*cursor)) return 0;
+        port = (port * 10UL) + (unsigned long)(*cursor - (unsigned char)'0');
+        if (port > 65535UL) return 0;
+        cursor++;
+    }
+    return port >= 1UL;
+}
 
-    port = strtol(value, &end, 10);
-    return end != value && *end == '\0' && port >= 1 && port <= 65535;
+static int valid_host(const char *value)
+{
+    const unsigned char *cursor = (const unsigned char *)value;
+
+    if (value == NULL || *value == '\0') return 0;
+    while (*cursor != '\0') {
+        if (!isalnum(*cursor) && *cursor != (unsigned char)'.' &&
+            *cursor != (unsigned char)'-') {
+            return 0;
+        }
+        cursor++;
+    }
+    return 1;
 }
 
 static int copy_option(char *destination, size_t capacity, const char *value)
@@ -136,8 +155,8 @@ static int parse_arguments(
         fprintf(stderr, "Porta invalida: %s (use um numero entre 1 e 65535).\n", port);
         return 0;
     }
-    if (strchr(host, ':') != NULL || strchr(host, ',') != NULL) {
-        fprintf(stderr, "Host invalido: informe um hostname ou endereco IPv4 sem porta.\n");
+    if (!valid_host(host)) {
+        fprintf(stderr, "Host invalido: use somente letras, numeros, ponto ou hifen.\n");
         return 0;
     }
     return 1;
