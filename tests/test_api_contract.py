@@ -111,7 +111,7 @@ def main():
     status, _ = request("/api/games/current/toggle-card", "POST", {})
     expect(status == 400, "missing toggle-card fields must return HTTP 400")
     status, _ = request("/api/games/current/toggle-card", "POST",
-                        {"playerId": 99, "number": 1})
+                        {"playerId": 5, "number": 1})
     expect(status == 409, "unknown player should return HTTP 409")
     status, _ = request("/api/games/current", "POST", payload={})
     expect(status == 405, "unsupported method should return HTTP 405")
