@@ -30,8 +30,8 @@ static int is_json_content_type(const char *value)
         i++;
     }
 
-    return value[i] == '\0' || value[i] == ';' ||
-           value[i] == ' ' || value[i] == '\t';
+    while (value[i] == ' ' || value[i] == '\t') i++;
+    return value[i] == '\0' || value[i] == ';';
 }
 
 BingoHttpJsonResult bingo_http_parse_json(
@@ -54,7 +54,7 @@ BingoHttpJsonResult bingo_http_parse_json(
     terminated_body = (char *)malloc(body_length + 1U);
     if (terminated_body == NULL) return BINGO_HTTP_JSON_READ_ERROR;
     memcpy(terminated_body, body, body_length);
-    terminated_body[body_length] = '\\0';
+    terminated_body[body_length] = '\0';
 
     parsed = cJSON_ParseWithLengthOpts(
         terminated_body,
