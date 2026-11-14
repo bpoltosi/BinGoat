@@ -61,23 +61,33 @@ A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests
 
 ## Executar o frontend web
 
-Na raiz do repositório:
+Na raiz do repositório, compile e inicie primeiro o servidor HTTP nativo em C. Em Linux/macOS:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+./build/bingo-server --host 127.0.0.1 --port 8080 --dist .
+```
+
+No Windows com MinGW-w64, use `cmake -S . -B build -G "MinGW Makefiles"`, `cmake --build build` e inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist .`.
+
+Em outro terminal, execute:
 
 ```bash
 npm install
 npm run dev
 ```
 
-O Vite exibirá no terminal o endereço local para abrir a interface no navegador.
+O Vite mantém a interface em `http://localhost:3000` e encaminha todas as chamadas `/api` ao servidor C em `http://127.0.0.1:8080`. O destino pode ser sobrescrito pela variável `BINGOAT_API_TARGET`. A API pode ser conferida diretamente em `http://127.0.0.1:8080/api/health`.
 
-Para validar o build de produção:
+Para gerar e servir a versão de produção:
 
 ```bash
 npm run build
-npm run preview
+./build/bingo-server --host 127.0.0.1 --port 8080 --dist dist
 ```
 
-O resultado do build é gerado em `dist/`, que não deve ser versionada.
+No Windows, inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist dist`. O executável C atende tanto a API quanto os arquivos gerados em `dist/`; o Node.js permanece necessário para instalar dependências e executar o Vite/build. O diretório `dist/` não deve ser versionado.
 
 ## Google AI Studio
 
@@ -86,7 +96,7 @@ Esta branch contém a configuração mínima necessária para o AI Studio reconh
 1. Importe a branch `web-app` do repositório.
 2. Aguarde a instalação das dependências declaradas em `package.json`.
 3. O comando de desenvolvimento configurado é `npm run dev`.
-4. A aplicação inicial informa explicitamente que o backend ainda não está conectado.
+4. O servidor C deve estar em execução e acessível pelo endereço configurado em `BINGOAT_API_TARGET` (padrão `http://127.0.0.1:8080`).
 
 Se a importação tiver sido feita enquanto outra branch estava selecionada, confirme que o AI Studio está usando `web-app`, e não `main`.
 
@@ -116,7 +126,7 @@ A arquitetura final prevista é:
 - **Vite:** ambiente de desenvolvimento e build do frontend.
 - **HTML/CSS/JavaScript/SVG:** interface, cartelas e animações 2D.
 
-O frontend deverá consumir a API por caminhos relativos sob `/api`. Em desenvolvimento, o Vite poderá encaminhar essas requisições ao servidor C por meio de um proxy. Em produção, o servidor HTTP poderá servir os arquivos gerados em `dist/`.
+O frontend consome a API por caminhos relativos sob `/api`. Em desenvolvimento, o proxy configurado em `vite.config.js` encaminha essas requisições ao servidor C (padrão `http://127.0.0.1:8080`, configurável por `BINGOAT_API_TARGET`). Em produção, o próprio CivetWeb serve os arquivos gerados em `dist/` e atende às rotas da API.
 
 ## Endpoints implementados
 

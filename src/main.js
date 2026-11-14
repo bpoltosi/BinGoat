@@ -261,6 +261,7 @@ const cardsComponent = createBingoCardsPanel(document.querySelector("#cards-moun
     });
   },
   async onPlayerNameChange(playerId, rawName) {
+    if (requestBusy || hallComponent.isSpinning()) return;
     const names = state.players.map((p) =>
       p.id === playerId ? rawName.trim() || `Jogador ${playerId}` : p.name
     );
