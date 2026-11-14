@@ -13,6 +13,7 @@ PID_FILE="${BUILD_DIR}/server-test.pid"
 
 cmake -S "${ROOT_DIR}" -B "${BUILD_DIR}" -DCMAKE_BUILD_TYPE=Release
 cmake --build "${BUILD_DIR}" --config Release
+ctest --test-dir "${BUILD_DIR}" --output-on-failure
 
 "${SERVER}" --host 127.0.0.1 --port "${PORT}" --dist "${STATIC_ROOT}" >"${LOG_FILE}" 2>&1 &
 SERVER_PID=$!
