@@ -168,19 +168,31 @@ static int send_game(struct mg_connection *c, int cols, int drawn) {
     result = respond(c, 200, json); cJSON_Delete(json); return result;
 }
 static int current_get(struct mg_connection *c, void *data) {
-    int cols; (void)data;
+    int cols;
+    const struct mg_request_info *ri = mg_get_request_info(c);
+    (void)data;
+    if (!ri || !ri->local_uri || strcmp(ri->local_uri, "/api/games/current") != 0)
+        return fail(c, 404, "NOT_FOUND", "Rota da API nao encontrada.");
     if (!method_is(c, "GET") && !method_is(c, "HEAD")) return fail(c, 405, "METHOD_NOT_ALLOWED", "Metodo nao permitido.");
     if (!query_cols(c, &cols)) return fail(c, 400, "INVALID_BOARD_COLUMNS", "boardCols deve ser 5, 6 ou 10.");
     return send_game(c, cols, 0);
 }
 static int mutate(struct mg_connection *c, void *data) {
     const char *action = (const char *)data;
+    const struct mg_request_info *ri = mg_get_request_info(c);
+    const char *expected = strcmp(action, "draw") == 0 ? "/api/games/current/draw" :
+        strcmp(action, "toggle-board") == 0 ? "/api/games/current/toggle-board" :
+        strcmp(action, "toggle-card") == 0 ? "/api/games/current/toggle-card" :
+        strcmp(action, "sync") == 0 ? "/api/games/current/sync" :
+        strcmp(action, "undo") == 0 ? "/api/games/current/undo" : "/api/games/current/reset";
     cJSON *body = NULL;
     int cols = 10, number = 0, player = 0, count = 0, flag = 0, ok = 0, drawn = 0;
     const cJSON *namesNode;
     const char *names[MAX_JOGADORES] = {0};
     char nameBuffers[MAX_JOGADORES][50];
     int i;
+    if (!ri || !ri->local_uri || strcmp(ri->local_uri, expected) != 0)
+        return fail(c, 404, "NOT_FOUND", "Rota da API nao encontrada.");
     if (!method_is(c, "POST")) return fail(c, 405, "METHOD_NOT_ALLOWED", "Metodo nao permitido.");
     if (!read_body(c, &body)) return 400;
     if (!get_int(body, "boardCols", 10, 5, 10, &cols) || (cols != 5 && cols != 6 && cols != 10)) {
@@ -191,10 +203,10 @@ static int mutate(struct mg_connection *c, void *data) {
     if (strcmp(action, "draw") == 0) {
         ok = bingo_game_draw(&state.game, &drawn);
     } else if (strcmp(action, "toggle-board") == 0) {
-        if (!get_int(body, "number", 0, 1, 60, &number)) goto invalid;
-        ok = bingo_game_toggle_board(&state.game, number);
-        if (cJSON_GetObjectItemCaseSensitive(body, "autoMark") &&
+        if (!get_int(body, "number", 0, 1, 60, &number) ||
             !get_bool(body, "autoMark", state.game.autoMark, &flag)) goto invalid;
+        ok = bingo_game_toggle_board(&state.game, number);
+        if (cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
         if (ok && cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
             state.game.autoMark = flag;
             if (flag) {
