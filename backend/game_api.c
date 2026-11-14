@@ -230,15 +230,19 @@ static int mutate(struct mg_connection *c, void *data) {
         namesNode = cJSON_GetObjectItemCaseSensitive(body, "playerNames");
         if (namesNode && !cJSON_IsArray(namesNode)) goto invalid;
         for (i = 0; i < count; i++) {
-            const cJSON *entry = namesNode ? cJSON_GetArrayItem(namesNode, i) : NULL;
+            const cJSON *entry;
+            if (i < 0 || i >= MAX_JOGADORES) goto invalid;
+            entry = namesNode ? cJSON_GetArrayItem(namesNode, i) : NULL;
             if (entry && !cJSON_IsString(entry)) goto invalid;
             if (entry && entry->valuestring) {
                 size_t len = strlen(entry->valuestring);
                 if (len == 0 || len > 32) goto invalid;
-                snprintf(nameBuffers[i], sizeof(nameBuffers[i]), "%s", entry->valuestring);
+                memcpy(nameBuffers[i], entry->valuestring, len + 1U);
                 names[i] = nameBuffers[i];
             } else if (i < state.game.qtdJogadores) {
-                snprintf(nameBuffers[i], sizeof(nameBuffers[i]), "%s", state.game.players[i].nome);
+                size_t len = strlen(state.game.players[i].nome);
+                if (len >= sizeof(nameBuffers[i])) goto invalid;
+                memcpy(nameBuffers[i], state.game.players[i].nome, len + 1U);
                 names[i] = nameBuffers[i];
             }
         }
