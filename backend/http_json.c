@@ -56,12 +56,7 @@ BingoHttpJsonResult bingo_http_parse_json(
     memcpy(terminated_body, body, body_length);
     terminated_body[body_length] = '\0';
 
-    parsed = cJSON_ParseWithLengthOpts(
-        terminated_body,
-        body_length + 1U,
-        &parse_end,
-        0
-    );
+    parsed = cJSON_ParseWithOpts(terminated_body, &parse_end, 0);
     if (parsed == NULL || parse_end == NULL) {
         cJSON_Delete(parsed);
         free(terminated_body);
