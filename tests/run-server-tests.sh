@@ -72,7 +72,9 @@ DRAW=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"bo
 printf '%s' "${DRAW}" | grep -q '"drawnNumber":'
 TOGGLE=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"number":60,"boardCols":10,"autoMark":true}' "${BASE_URL}/api/games/current/toggle-board")
 printf '%s' "${TOGGLE}" | grep -q '"calledNumbers":\['
-CARD=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"playerId":1,"number":1,"boardCols":10}' "${BASE_URL}/api/games/current/toggle-card")
+CARD_NUMBER=$(printf '%s' "${GAME}" | sed -n 's/.*"players":\[{"id":1,"name":"[^"]*","numbers":\[\([0-9][0-9]*\).*/\1/p')
+[ -n "${CARD_NUMBER}" ]
+CARD=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d "{\"playerId\":1,\"number\":${CARD_NUMBER},\"boardCols\":10}" "${BASE_URL}/api/games/current/toggle-card")
 printf '%s' "${CARD}" | grep -q '"markedNumbers":\['
 SYNC=$(curl --fail --silent -X POST -H 'Content-Type: application/json' -d '{"playerCount":3,"playerNames":["Ana","Bia","Caio"],"autoMark":true,"boardCols":10}' "${BASE_URL}/api/games/current/sync")
 printf '%s' "${SYNC}" | grep -q '"name":"Caio"'
