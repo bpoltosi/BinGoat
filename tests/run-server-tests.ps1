@@ -40,6 +40,9 @@ try {
         if ($_.Exception.Response.StatusCode.value__ -ne 404) { throw }
     }
 
+    $TraversalStatus = & curl.exe --path-as-is --silent --output NUL --write-out "%{http_code}" "$BaseUrl/../README.md"
+    if ($TraversalStatus -eq "200") { throw "O servidor permitiu acesso fora de dist/." }
+
     Write-Host "Todos os testes HTTP do servidor passaram."
 } finally {
     if (-not $Process.HasExited) {
