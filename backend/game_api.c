@@ -190,6 +190,7 @@ static int mutate(struct mg_connection *c, void *data) {
         strcmp(action, "sync") == 0 ? "/api/games/current/sync" :
         strcmp(action, "undo") == 0 ? "/api/games/current/undo" : "/api/games/current/reset";
     cJSON *body = NULL;
+    cJSON *response_json = NULL;
     int cols = 10, number = 0, player = 0, count = 0, flag = 0, ok = 0, drawn = 0;
     const cJSON *namesNode;
     const char *names[MAX_JOGADORES] = {0};
@@ -258,10 +259,21 @@ static int mutate(struct mg_connection *c, void *data) {
         if (!get_bool(body, "newCards", 0, &flag)) goto invalid;
         bingo_game_reset(&state.game, flag); ok = 1;
     }
+    if (!ok) {
+        unlock_state();
+        cJSON_Delete(body);
+        return fail(c, 409, "GAME_ACTION_REJECTED", "A operacao nao pode ser aplicada ao estado atual.");
+    }
+    response_json = game_json(&state.game, cols);
     unlock_state();
     cJSON_Delete(body);
-    if (!ok) return fail(c, 409, "GAME_ACTION_REJECTED", "A operacao nao pode ser aplicada ao estado atual.");
-    return send_game(c, cols, drawn);
+    if (!response_json) return fail(c, 500, "SERIALIZATION_ERROR", "Nao foi possivel montar o estado da partida.");
+    if (drawn > 0) cJSON_AddNumberToObject(response_json, "drawnNumber", drawn);
+    {
+        int result = respond(c, 200, response_json);
+        cJSON_Delete(response_json);
+        return result;
+    }
 invalid:
     unlock_state(); cJSON_Delete(body);
     return fail(c, 400, "INVALID_ARGUMENT", "Um ou mais campos da requisicao sao invalidos.");
