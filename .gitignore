@@ -1,3 +1,7 @@
+# Diretórios de build CMake
+build/
+cmake-build-*/
+
 # Executáveis gerados pelo projeto em C
 bingo
 bingo.exe
