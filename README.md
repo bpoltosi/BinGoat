@@ -57,7 +57,7 @@ A suíte protege o comportamento do CLI e valida a API pública do motor extraí
 - Linux/macOS: `sh tests/run-tests.sh`
 - Windows com MinGW-w64: `.\tests\run-tests.ps1`
 
-A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md).
+A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md). Após instalar as dependências e compilar o frontend, valide também o proxy com `sh tests/run-vite-proxy-test.sh`.
 
 ## Executar o frontend web
 

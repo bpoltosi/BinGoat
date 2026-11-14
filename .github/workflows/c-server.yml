@@ -8,6 +8,7 @@ on:
       - "bingo_engine.c"
       - "bingo_engine.h"
       - "tests/run-server-tests.*"
+      - "tests/run-vite-proxy-test.sh"
       - ".github/workflows/c-server.yml"
   push:
     branches: [main]
@@ -38,6 +39,8 @@ jobs:
         run: cmake --build build --config Release --parallel
       - name: HTTP smoke tests
         run: sh tests/run-server-tests.sh
+      - name: Verify Vite proxy reaches native C API
+        run: sh tests/run-vite-proxy-test.sh
 
   windows-mingw:
     runs-on: windows-latest
