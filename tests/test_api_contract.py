@@ -108,6 +108,8 @@ def main():
     for payload in ({"number": 0}, {"number": 61}, {"number": "10"}, {}):
         status, _ = request("/api/games/current/toggle-board", "POST", payload)
         expect(status == 400, f"invalid toggle-board payload should return 400: {payload}")
+    status, _ = request("/api/games/current/toggle-card", "POST", {})
+    expect(status == 400, "missing toggle-card fields must return HTTP 400")
     status, _ = request("/api/games/current/toggle-card", "POST",
                         {"playerId": 99, "number": 1})
     expect(status == 409, "unknown player should return HTTP 409")
