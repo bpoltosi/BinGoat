@@ -50,6 +50,31 @@ try {
         }
     }
 
+    # Game API contract and state transitions
+    $Game = Invoke-RestMethod "$BaseUrl/api/games/current?boardCols=10"
+    if ($Game.calledNumbers.Count -ne 0 -or $Game.players.Count -lt 2) {
+        throw "O estado inicial da partida nao corresponde ao contrato."
+    }
+    $Draw = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/draw" -ContentType "application/json" -Body '{"boardCols":10,"autoMark":true}'
+    if ($null -eq $Draw.drawnNumber) { throw "O endpoint de sorteio nao retornou drawnNumber." }
+    $Toggle = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/toggle-board" -ContentType "application/json" -Body '{"number":60,"boardCols":10,"autoMark":true}'
+    $CardNumber = $Game.players[0].numbers[0]
+    $CardBody = @{ playerId = 1; number = $CardNumber; boardCols = 10 } | ConvertTo-Json -Compress
+    $Card = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/toggle-card" -ContentType "application/json" -Body $CardBody
+    $Sync = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/sync" -ContentType "application/json" -Body '{"playerCount":3,"playerNames":["Ana","Bia","Caio"],"autoMark":true,"boardCols":10}'
+    if ($Sync.players.Count -ne 3 -or $Sync.players[2].name -ne "Caio") {
+        throw "O endpoint de sincronizacao nao atualizou os jogadores."
+    }
+    $Undo = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/undo" -ContentType "application/json" -Body '{"boardCols":10}'
+    $Reset = Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/reset" -ContentType "application/json" -Body '{"newCards":true,"boardCols":10}'
+    if ($Reset.calledNumbers.Count -ne 0) { throw "O reset nao limpou os numeros chamados." }
+    try {
+        Invoke-RestMethod -Method Post -Uri "$BaseUrl/api/games/current/toggle-board" -ContentType "application/json" -Body '{"number":99}' | Out-Null
+        throw "Um numero fora do intervalo deveria retornar HTTP 400."
+    } catch {
+        if ($_.Exception.Response.StatusCode.value__ -ne 400) { throw }
+    }
+
     try {
         Invoke-WebRequest "$BaseUrl/api/rota-inexistente" -UseBasicParsing | Out-Null
         throw "Uma rota de API inexistente deveria retornar 404."
