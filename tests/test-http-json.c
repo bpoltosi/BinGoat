@@ -7,7 +7,7 @@
 #define CHECK(expression) \
     do { \
         if (!(expression)) { \
-            fprintf(stderr, "Falha: %s (linha %d)\\n", #expression, __LINE__); \
+            fprintf(stderr, "Falha: %s (linha %d)\n", #expression, __LINE__); \
             return 1; \
         } \
     } while (0)
