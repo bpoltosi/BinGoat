@@ -1,56 +1,71 @@
 #include "http_json.h"
 
-#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-static void test_valid_json(void)
+#define CHECK(expression) \
+    do { \
+        if (!(expression)) { \
+            fprintf(stderr, "Falha: %s (linha %d)\\n", #expression, __LINE__); \
+            return 1; \
+        } \
+    } while (0)
+
+static int test_valid_json(void)
 {
     static const char body[] = " { \"players\": [\"Ana\", \"Bia\"], \"round\": 1 } \n";
     cJSON *json = NULL;
 
-    assert(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_OK);
-    assert(json != NULL);
-    assert(cJSON_IsObject(json));
-    assert(cJSON_IsArray(cJSON_GetObjectItemCaseSensitive(json, "players")));
+    CHECK(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_OK);
+    CHECK(json != NULL);
+    CHECK(cJSON_IsObject(json));
+    CHECK(cJSON_IsArray(cJSON_GetObjectItemCaseSensitive(json, "players")));
     cJSON_Delete(json);
+    return 0;
 }
 
-static void test_invalid_json(void)
+static int test_invalid_json(void)
 {
     static const char body[] = "{\"players\":[}";
     cJSON *json = NULL;
 
-    assert(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_INVALID_JSON);
-    assert(json == NULL);
+    CHECK(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_INVALID_JSON);
+    CHECK(json == NULL);
+    return 0;
 }
 
-static void test_trailing_data(void)
+static int test_trailing_data(void)
 {
     static const char body[] = "{\"ok\":true} garbage";
     cJSON *json = NULL;
 
-    assert(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_TRAILING_DATA);
-    assert(json == NULL);
+    CHECK(bingo_http_parse_json(body, strlen(body), &json) == BINGO_HTTP_JSON_TRAILING_DATA);
+    CHECK(json == NULL);
+    return 0;
 }
 
-static void test_empty_and_oversized(void)
+static int test_empty_and_oversized(void)
 {
     cJSON *json = NULL;
-    char oversized[BINGO_HTTP_MAX_JSON_BODY + 1];
+    char *oversized = (char *)malloc(BINGO_HTTP_MAX_JSON_BODY + 1U);
 
-    assert(bingo_http_parse_json("", 0, &json) == BINGO_HTTP_JSON_EMPTY_BODY);
-    memset(oversized, ' ', sizeof(oversized));
-    assert(bingo_http_parse_json(oversized, sizeof(oversized), &json) == BINGO_HTTP_JSON_BODY_TOO_LARGE);
-    assert(json == NULL);
+    CHECK(oversized != NULL);
+    memset(oversized, ' ', BINGO_HTTP_MAX_JSON_BODY + 1U);
+    CHECK(bingo_http_parse_json("", 0, &json) == BINGO_HTTP_JSON_EMPTY_BODY);
+    CHECK(bingo_http_parse_json(oversized, BINGO_HTTP_MAX_JSON_BODY + 1U, &json) ==
+          BINGO_HTTP_JSON_BODY_TOO_LARGE);
+    CHECK(json == NULL);
+    free(oversized);
+    return 0;
 }
 
 int main(void)
 {
-    test_valid_json();
-    test_invalid_json();
-    test_trailing_data();
-    test_empty_and_oversized();
+    if (test_valid_json() || test_invalid_json() || test_trailing_data() ||
+        test_empty_and_oversized()) {
+        return EXIT_FAILURE;
+    }
     puts("Testes do parser JSON HTTP passaram.");
-    return 0;
+    return EXIT_SUCCESS;
 }
