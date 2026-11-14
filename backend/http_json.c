@@ -42,6 +42,7 @@ BingoHttpJsonResult bingo_http_parse_json(
 {
     const char *parse_end = NULL;
     const char *body_end;
+    char *terminated_body;
     cJSON *parsed;
 
     if (json == NULL || body == NULL) return BINGO_HTTP_JSON_INVALID_ARGUMENT;
@@ -50,21 +51,34 @@ BingoHttpJsonResult bingo_http_parse_json(
     if (body_length == 0) return BINGO_HTTP_JSON_EMPTY_BODY;
     if (body_length > BINGO_HTTP_MAX_JSON_BODY) return BINGO_HTTP_JSON_BODY_TOO_LARGE;
 
-    parsed = cJSON_ParseWithLengthOpts(body, body_length, &parse_end, 0);
+    terminated_body = (char *)malloc(body_length + 1U);
+    if (terminated_body == NULL) return BINGO_HTTP_JSON_READ_ERROR;
+    memcpy(terminated_body, body, body_length);
+    terminated_body[body_length] = '\\0';
+
+    parsed = cJSON_ParseWithLengthOpts(
+        terminated_body,
+        body_length + 1U,
+        &parse_end,
+        1
+    );
     if (parsed == NULL || parse_end == NULL) {
         cJSON_Delete(parsed);
+        free(terminated_body);
         return BINGO_HTTP_JSON_INVALID_JSON;
     }
 
-    body_end = body + body_length;
+    body_end = terminated_body + body_length;
     while (parse_end < body_end && isspace((unsigned char)*parse_end)) {
         parse_end++;
     }
     if (parse_end != body_end) {
         cJSON_Delete(parsed);
+        free(terminated_body);
         return BINGO_HTTP_JSON_TRAILING_DATA;
     }
 
+    free(terminated_body);
     *json = parsed;
     return BINGO_HTTP_JSON_OK;
 }
