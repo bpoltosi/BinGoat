@@ -71,7 +71,7 @@ Resposta esperada (HTTP 200):
 {"status":"ok","service":true,"engine":"ready"}
 ```
 
-O status só é 200 depois que `bingo_game_init` conclui com sucesso. Se o motor não estiver pronto, o endpoint responde HTTP 503 com `engine: "not_ready"`.
+O status é 200 somente depois que `bingo_game_init` conclui com sucesso. Se a inicialização do motor falhar, o servidor HTTP ainda sobe para health check e arquivos estáticos, mas responde HTTP 503 com `engine: "not_ready"`; as operações de jogo devem permanecer indisponíveis.
 
 ## Arquivos estáticos e segurança
 
