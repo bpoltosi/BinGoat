@@ -4,7 +4,7 @@ const MAX_PLAYERS = 5;
 const formatBingoNumber = (value) => String(value).padStart(2, "0");
 
 /**
- * Painel responsivo de cartelas dos jogadores (formato 3x5 de TrabalhoBingo.c).
+ * Painel responsivo de cartelas dos jogadores (formato 3 × 5 do motor BinGoat).
  * Permite marcar números manualmente nas cartelas ou sincronizar automaticamente
  * com os números chamados no tabuleiro principal.
  */
