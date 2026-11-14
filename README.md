@@ -101,7 +101,7 @@ BinGoat/
     ├── main.js               # inicialização da interface
     ├── style.css             # estilos responsivos
     └── services/
-        └── api.js            # cliente HTTP para a futura API C
+        └── api.js            # cliente HTTP da API C
 ```
 
 A arquitetura atual separa domínio e interfaces:
@@ -112,23 +112,24 @@ A arquitetura atual separa domínio e interfaces:
 A arquitetura final prevista é:
 
 - **C:** regras e estado da partida.
-- **CivetWeb + cJSON:** servidor HTTP nativo e serialização JSON; infraestrutura inicial implementada em `backend/server.c`.
+- **CivetWeb + cJSON:** servidor HTTP nativo e serialização JSON; rotas e handlers em `backend/server.c` e `backend/game_api.c`.
 - **Vite:** ambiente de desenvolvimento e build do frontend.
 - **HTML/CSS/JavaScript/SVG:** interface, cartelas e animações 2D.
 
 O frontend deverá consumir a API por caminhos relativos sob `/api`. Em desenvolvimento, o Vite poderá encaminhar essas requisições ao servidor C por meio de um proxy. Em produção, o servidor HTTP poderá servir os arquivos gerados em `dist/`.
 
-## Endpoints previstos
-
-O health check já está implementado. As operações de jogo abaixo permanecem para a Issue #5:
+## Endpoints implementados
 
 - `GET /api/health`
-- `POST /api/games`
-- `GET /api/games/current`
+- `GET /api/games/current?boardCols=10`
 - `POST /api/games/current/draw`
+- `POST /api/games/current/toggle-board`
+- `POST /api/games/current/toggle-card`
+- `POST /api/games/current/sync`
+- `POST /api/games/current/undo`
 - `POST /api/games/current/reset`
 
-Até a implementação do backend e desses endpoints, a interface não deve simular respostas nem gerar dados de jogo no navegador.
+As operações POST recebem JSON e retornam o estado atualizado da partida. O contrato completo e os campos aceitos estão em [backend/README.md](backend/README.md). Os testes HTTP cobrem os fluxos principais em Linux/GCC e Windows/MinGW-w64.
 
 ## Próximas etapas
 
@@ -136,7 +137,7 @@ O desenvolvimento deve seguir o roadmap documentado no PR de planejamento da ver
 
 1. Separar o motor do bingo da interface de terminal.
 2. Criar o servidor HTTP em C.
-3. Implementar os endpoints e o contrato JSON.
+3. Implementar os endpoints e o contrato JSON (concluído na Issue #5).
 4. Evoluir o frontend para exibir jogadores e cartelas com dados reais.
 5. Criar a máquina de bingo 2D em SVG e suas animações.
 6. Integrar o fluxo de sorteio à resposta real da API.
