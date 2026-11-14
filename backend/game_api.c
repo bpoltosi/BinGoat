@@ -127,7 +127,7 @@ static cJSON *game_json(const BingoGame *g, int cols) {
             cJSON_AddItemToArray(numbers, cJSON_CreateNumber(values[j]));
             if (marks[j]) cJSON_AddItemToArray(marked, cJSON_CreateNumber(values[j]));
         }
-        add_lines(lines, values, marks, TAMANHO_CARTELA, 3, 5, "player");
+        {\n            char prefix[32];\n            snprintf(prefix, sizeof(prefix), "player-%d", p->id);\n            add_lines(lines, values, marks, TAMANHO_CARTELA, 3, 5, prefix);\n        }
         cJSON_AddNumberToObject(player, "id", p->id);
         cJSON_AddStringToObject(player, "name", p->nome);
         cJSON_AddItemToObject(player, "numbers", numbers);
