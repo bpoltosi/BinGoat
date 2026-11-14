@@ -50,6 +50,15 @@ Variáveis equivalentes: `BINGOAT_HOST`, `BINGOAT_PORT` e `BINGOAT_DIST`.
 
 O host padrão é loopback para não expor o serviço na rede local sem decisão explícita. Para acesso externo, configure conscientemente outro endereço e aplique controles de rede adequados.
 
+## Testes de fumaça HTTP
+
+Após instalar GCC, CMake, Git e curl:
+
+- Linux/macOS: `sh tests/run-server-tests.sh`
+- Windows/MinGW-w64: `./tests/run-server-tests.ps1`
+
+Os testes compilam o executável, aguardam a prontidão, verificam o JSON do health check, a entrega do index, o fallback SPA, 404 de API e rejeição de tentativa de sair de `dist/`. O workflow `.github/workflows/c-server.yml` executa build GCC/Linux, smoke tests e build MinGW-w64/Windows.
+
 ## Health check
 
 ```sh
