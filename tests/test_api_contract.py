@@ -137,6 +137,22 @@ def main():
            "drawn number outside 1..60")
     validate_cards(snapshot["players"])
 
+    # Continue until the game reports its terminal state; no number may repeat.
+    status, _ = request("/api/games/current/reset", "POST", {"newCards": True})
+    expect(status == 200, "full-draw reset failed")
+    full_drawn = []
+    finished = False
+    for _ in range(61):
+        status, body = request("/api/games/current/draw", "POST", {"boardCols": 10, "autoMark": True})
+        if status == 409:
+            finished = True
+            break
+        expect(status == 200, f"draw before game end returned HTTP {status}")
+        full_drawn.append(body["drawnNumber"])
+    expect(finished, "game did not reject a draw after reaching its terminal state")
+    expect(len(full_drawn) == len(set(full_drawn)), "full game contained repeated draws")
+    expect(1 <= len(full_drawn) <= 60, "full game draw count is outside 1..60")
+
     # Manual marking, undo, and reset state.
     status, _ = request("/api/games/current/reset", "POST", {"newCards": False})
     expect(status == 200, "pre-marking reset failed")
