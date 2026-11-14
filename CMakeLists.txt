@@ -8,6 +8,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static dependencies" FORCE)
+# CivetWeb 1.16 declares CMake 3.3; keep it configurable on CMake 4.x.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+set(CIVETWEB_VERSION 1.16.0 CACHE STRING "Pinned CivetWeb version" FORCE)
 
 # Pin dependency versions so local and CI builds are reproducible.
 set(CIVETWEB_ENABLE_CXX OFF CACHE BOOL "" FORCE)
