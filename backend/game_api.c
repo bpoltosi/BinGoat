@@ -206,7 +206,6 @@ static int mutate(struct mg_connection *c, void *data) {
         if (!get_int(body, "number", 0, 1, 60, &number) ||
             !get_bool(body, "autoMark", state.game.autoMark, &flag)) goto invalid;
         ok = bingo_game_toggle_board(&state.game, number);
-        if (cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
         if (ok && cJSON_GetObjectItemCaseSensitive(body, "autoMark")) {
             state.game.autoMark = flag;
             if (flag) {
