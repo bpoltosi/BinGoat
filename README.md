@@ -1,13 +1,13 @@
 # BinGoat — Bingo em C com interface web em desenvolvimento
 
-O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O repositório mantém a aplicação de terminal original e prepara uma interface web independente, que futuramente consumirá uma API HTTP fornecida pelo backend em C.
+O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O repositório mantém a aplicação de terminal original, um servidor HTTP nativo em C (CivetWeb + cJSON) e uma interface web independente. Nesta etapa, o servidor expõe o health check; as operações de jogo serão entregues na Issue #5.
 
 ## Estado atual
 
 - **Motor C reutilizável:** regras e estado em `bingo_engine.c` / `bingo_engine.h`.
 - **CLI:** interface de terminal em `TrabalhoBingo.c`, consumindo o motor compartilhado.
 - **Frontend web:** estrutura inicial criada com Vite, HTML, CSS e JavaScript.
-- **Integração HTTP:** cliente base preparado em `src/services/api.js`; ainda depende da implementação dos endpoints no backend C.
+- **Servidor HTTP nativo:** executável `bingo-server`, health check em `GET /api/health` e entrega de arquivos de `dist/`; as rotas de jogo ainda dependem da Issue #5.
 - **Máquina de bingo e animações:** ainda não implementadas nesta etapa.
 - **Dados:** o frontend não usa cartelas, jogadores ou sorteios fictícios.
 
@@ -90,7 +90,7 @@ Esta branch contém a configuração mínima necessária para o AI Studio reconh
 
 Se a importação tiver sido feita enquanto outra branch estava selecionada, confirme que o AI Studio está usando `web-app`, e não `main`.
 
-## Arquitetura planejada
+## Arquitetura
 
 ```text
 BinGoat/
@@ -112,7 +112,7 @@ A arquitetura atual separa domínio e interfaces:
 A arquitetura final prevista é:
 
 - **C:** regras e estado da partida.
-- **CivetWeb + cJSON:** servidor HTTP e serialização JSON no backend.
+- **CivetWeb + cJSON:** servidor HTTP nativo e serialização JSON; infraestrutura inicial implementada em `backend/server.c`.
 - **Vite:** ambiente de desenvolvimento e build do frontend.
 - **HTML/CSS/JavaScript/SVG:** interface, cartelas e animações 2D.
 
@@ -120,7 +120,7 @@ O frontend deverá consumir a API por caminhos relativos sob `/api`. Em desenvol
 
 ## Endpoints previstos
 
-Os caminhos abaixo são parte do planejamento e **ainda não estão implementados**:
+O health check já está implementado. As operações de jogo abaixo permanecem para a Issue #5:
 
 - `GET /api/health`
 - `POST /api/games`
