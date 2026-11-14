@@ -1,134 +1,86 @@
-# BinGoat — Bingo em C com interface web em desenvolvimento
+# BinGoat
 
-O BinGoat é um projeto de bingo cuja lógica principal é desenvolvida em C. O repositório mantém a aplicação de terminal original, um servidor HTTP nativo em C (CivetWeb + cJSON) e uma interface web independente. O servidor expõe health check e endpoints para consultar e operar a partida.
+Bingo com motor, regras e backend HTTP em C, interface web com Vite e aplicação de terminal preservada. O executável `bingo-server` (CivetWeb + cJSON) é o único servidor HTTP e a única fonte autoritativa do estado do jogo.
 
-## Estado atual
+## Componentes
 
-- **Motor C reutilizável:** regras e estado em `bingo_engine.c` / `bingo_engine.h`.
-- **CLI:** interface de terminal em `TrabalhoBingo.c`, consumindo o motor compartilhado.
-- **Frontend web:** estrutura inicial criada com Vite, HTML, CSS e JavaScript.
-- **Servidor HTTP nativo:** executável `bingo-server`, health check em `GET /api/health`, entrega de `dist/` e utilitário cJSON para leitura validada de corpos JSON; as rotas de jogo consultam e alteram o estado mantido pelo motor C.
-- **Máquina de bingo e animações:** ainda não implementadas nesta etapa.
-- **Dados:** o frontend não usa cartelas, jogadores ou sorteios fictícios.
-
-## Regras atuais do jogo
-
-- De 2 a 5 jogadores por partida.
-- Cada cartela possui 15 números distintos entre 1 e 60.
-- As cartelas não contêm números repetidos ou consecutivos.
-- Os sorteios não repetem números.
-- Os números sorteados são marcados automaticamente.
-- Um jogador vence ao completar os 15 números da cartela.
-- A partida termina quando todos vencem ou quando os 60 números são sorteados.
-
-A versão web deverá preservar essas regras. O backend em C será a única fonte da verdade para geração de cartelas, sorteios, marcações e identificação de vencedores.
+- `bingo_engine.c/.h`: motor reutilizável do bingo.
+- `TrabalhoBingo.c`: interface CLI, compilada separadamente.
+- `backend/server.c` e `backend/game_api.c`: servidor HTTP nativo e API.
+- `src/`: frontend JavaScript, HTML e CSS; usa apenas o cliente HTTP `src/services/api.js`.
+- Vite: servidor de desenvolvimento, proxy de `/api` para o servidor C e build estático. Node.js/npm não executam lógica de backend nem atendem a aplicação em produção.
 
 ## Requisitos
 
-### Aplicação C
+- GCC C11 e CMake 3.16+.
+- Node.js 18+ e npm, somente para instalar dependências e executar Vite/build.
+- Git (CMake baixa CivetWeb 1.16 e cJSON 1.7.19 na primeira configuração).
 
-- GCC compatível com C11.
+## Executar o frontend em desenvolvimento
 
-### Frontend web
+Terminal 1 — compilar e iniciar o servidor C:
 
-- Node.js 18 ou superior.
-- npm.
-
-## Executar a aplicação C
-
-### Linux e macOS
-
-```bash
-gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo
-./bingo
-```
-
-### Windows (MinGW-w64)
-
-```bash
-gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo.exe
-bingo.exe
-```
-
-## Testes de caracterização do motor C
-
-A suíte protege o comportamento do CLI e valida a API pública do motor extraído, sem iniciar Node.js ou frontend.
-
-- Linux/macOS: `sh tests/run-tests.sh`
-- Windows com MinGW-w64: `.\tests\run-tests.ps1`
-
-A cobertura e os detalhes de reprodutibilidade estão em [tests/README.md](tests/README.md).
-
-## Executar o frontend web
-
-Na raiz do repositório, compile e inicie primeiro o servidor HTTP nativo em C. Em Linux/macOS:
-
-```bash
+```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ./build/bingo-server --host 127.0.0.1 --port 8080 --dist .
 ```
 
-No Windows com MinGW-w64, use `cmake -S . -B build -G "MinGW Makefiles"`, `cmake --build build` e inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist .`.
+Terminal 2 — instalar dependências e iniciar Vite:
 
-Em outro terminal, execute:
-
-```bash
+```sh
 npm install
 npm run dev
 ```
 
-O Vite mantém a interface em `http://localhost:3000` e encaminha todas as chamadas `/api` ao servidor C em `http://127.0.0.1:8080`. O destino pode ser sobrescrito pela variável `BINGOAT_API_TARGET`. A API pode ser conferida diretamente em `http://127.0.0.1:8080/api/health`.
+Abra `http://localhost:3000`. O proxy do Vite encaminha `/api` para `http://127.0.0.1:8080`. Para outro destino, defina `BINGOAT_API_TARGET` antes de iniciar o Vite. Verifique o backend em `http://127.0.0.1:8080/api/health`.
 
-Para gerar e servir a versão de produção:
+## Executar em produção
 
-```bash
+Na raiz do projeto:
+
+```sh
+npm install
 npm run build
 ./build/bingo-server --host 127.0.0.1 --port 8080 --dist dist
 ```
 
-No Windows, inicie `build\\bingo-server.exe --host 127.0.0.1 --port 8080 --dist dist`. O executável C atende tanto a API quanto os arquivos gerados em `dist/`; o Node.js permanece necessário para instalar dependências e executar o Vite/build. O diretório `dist/` não deve ser versionado.
+O executável C serve os arquivos de `dist/` e as rotas `/api/*` no mesmo processo. O diretório `dist/` é gerado e não deve ser versionado. No Windows/MinGW-w64, compile com:
 
-## Google AI Studio
-
-Esta branch contém a configuração mínima necessária para o AI Studio reconhecer e iniciar o frontend com npm:
-
-1. Importe a branch `web-app` do repositório.
-2. Aguarde a instalação das dependências declaradas em `package.json`.
-3. O comando de desenvolvimento configurado é `npm run dev`.
-4. O servidor C deve estar em execução e acessível pelo endereço configurado em `BINGOAT_API_TARGET` (padrão `http://127.0.0.1:8080`).
-
-Se a importação tiver sido feita enquanto outra branch estava selecionada, confirme que o AI Studio está usando `web-app`, e não `main`.
-
-## Arquitetura
-
-```text
-BinGoat/
-├── TrabalhoBingo.c          # aplicação C original de terminal
-├── package.json             # scripts e dependências do frontend
-├── index.html               # ponto de entrada do Vite
-└── src/
-    ├── main.js               # inicialização da interface
-    ├── style.css             # estilos responsivos
-    └── services/
-        └── api.js            # cliente HTTP da API C
+```powershell
+cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+.\build\bingo-server.exe --host 127.0.0.1 --port 8080 --dist dist
 ```
 
-A arquitetura atual separa domínio e interfaces:
+O host/porta/diretório também podem ser configurados por `BINGOAT_HOST`, `BINGOAT_PORT` e `BINGOAT_DIST`. Consulte [backend/README.md](backend/README.md) para detalhes da API, configuração e testes HTTP.
 
-- `bingo_engine.h` / `bingo_engine.c`: tipos e operações reutilizáveis, sem I/O de terminal, HTTP ou JSON.
-- `TrabalhoBingo.c`: interface CLI que chama o motor.
+## Executar o CLI
 
-A arquitetura final prevista é:
+Linux/macOS:
 
-- **C:** regras e estado da partida.
-- **CivetWeb + cJSON:** servidor HTTP nativo e serialização JSON; rotas e handlers em `backend/server.c` e `backend/game_api.c`.
-- **Vite:** ambiente de desenvolvimento e build do frontend.
-- **HTML/CSS/JavaScript/SVG:** interface, cartelas e animações 2D.
+```sh
+gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo
+./bingo
+```
 
-O frontend consome a API por caminhos relativos sob `/api`. Em desenvolvimento, o proxy configurado em `vite.config.js` encaminha essas requisições ao servidor C (padrão `http://127.0.0.1:8080`, configurável por `BINGOAT_API_TARGET`). Em produção, o próprio CivetWeb serve os arquivos gerados em `dist/` e atende às rotas da API.
+Windows/MinGW-w64:
 
-## Endpoints implementados
+```powershell
+gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bingo.exe
+.\bingo.exe
+```
+
+## Testes
+
+- Motor e CLI: `sh tests/run-tests.sh` (Linux/macOS) ou `./tests/run-tests.ps1` (Windows).
+- Servidor HTTP: `sh tests/run-server-tests.sh` (Linux/macOS) ou `./tests/run-server-tests.ps1` (Windows).
+- Proxy Vite → servidor C: `sh tests/run-vite-proxy-test.sh` (Linux; requer Node.js/npm, CMake, GCC, Git e curl).
+- Parser JSON: `ctest --test-dir build --output-on-failure`.
+
+O workflow `.github/workflows/c-server.yml` valida o build do frontend, servidor C e proxy no Linux/GCC, além da compilação MinGW-w64 no Windows.
+
+## API
 
 - `GET /api/health`
 - `GET /api/games/current?boardCols=10`
@@ -139,20 +91,4 @@ O frontend consome a API por caminhos relativos sob `/api`. Em desenvolvimento, 
 - `POST /api/games/current/undo`
 - `POST /api/games/current/reset`
 
-As operações POST recebem JSON e retornam o estado atualizado da partida. O contrato completo e os campos aceitos estão em [backend/README.md](backend/README.md). Os testes HTTP cobrem os fluxos principais em Linux/GCC e Windows/MinGW-w64.
-
-## Próximas etapas
-
-O desenvolvimento deve seguir o roadmap documentado no PR de planejamento da versão web:
-
-1. Separar o motor do bingo da interface de terminal.
-2. Criar o servidor HTTP em C.
-3. Implementar os endpoints e o contrato JSON (concluído na Issue #5).
-4. Evoluir o frontend para exibir jogadores e cartelas com dados reais.
-5. Criar a máquina de bingo 2D em SVG e suas animações.
-6. Integrar o fluxo de sorteio à resposta real da API.
-7. Validar a experiência completa e preservar a aplicação de terminal.
-
-## Escopo desta branch
-
-A branch `web-app` prepara apenas a base de execução do frontend. Ela não substitui a aplicação C, não implementa ainda o backend HTTP e não altera a branch `main`.
+O contrato e os campos JSON estão documentados em [backend/README.md](backend/README.md). A aplicação mantém uma partida em memória, sem persistência ou autenticação nesta etapa.
