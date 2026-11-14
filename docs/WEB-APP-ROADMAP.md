@@ -1,6 +1,6 @@
 # Plano de desenvolvimento — versão web do BinGoat
 
-> Documento de planejamento. Esta proposta não implementa a versão web nem altera o motor C atual.
+> **Documento histórico (não normativo).** Este roadmap registra a proposta inicial e o backlog original. A arquitetura implementada evoluiu: o frontend usa Canvas em `src/components/BingoHallCanvas.js`, e a API/servidor nativos em C já estão implementados. Para instruções atuais, consulte o [README](../README.md) e o [backend/README.md](../backend/README.md). Não use este documento como fonte do estado atual nem como backlog ativo.
 
 ## 1. Objetivo
 

@@ -158,10 +158,12 @@ def main():
     # Manual marking, undo, and reset state.
     status, _ = request("/api/games/current/reset", "POST", {"newCards": False})
     expect(status == 200, "pre-marking reset failed")
+    current_cards = game()
+    validate_cards(current_cards["players"])
     status, marked = request("/api/games/current/toggle-board", "POST",
                              {"number": 60, "autoMark": False})
     expect(status == 200 and 60 in marked["calledNumbers"], "manual board marking failed")
-    player_number = snapshot["players"][0]["numbers"][0]
+    player_number = current_cards["players"][0]["numbers"][0]
     status, card = request("/api/games/current/toggle-card", "POST",
                            {"playerId": 1, "number": player_number})
     expect(status == 200 and player_number in card["players"][0]["markedNumbers"],

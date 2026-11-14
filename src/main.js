@@ -97,7 +97,7 @@ app.innerHTML = `
     </main>
 
     <footer class="footer">
-      <span>BinGoat · Motor em C (TrabalhoBingo.c) · Cartelas 3 × 5</span>
+      <span>BinGoat · Motor em C · Cartelas 3 × 5</span>
       <span><a class="footer-link" href="#salao">Voltar ao topo</a></span>
     </footer>
 
@@ -341,7 +341,7 @@ async function runApiAction(actionFn) {
     await actionFn();
   } catch (err) {
     state.errorMessage =
-      err instanceof Error ? err.message : "Falha ao comunicar com TrabalhoBingo.c.";
+      err instanceof Error ? err.message : "Falha ao comunicar com o servidor BinGoat.";
     renderUI();
   } finally {
     requestBusy = false;

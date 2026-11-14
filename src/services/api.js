@@ -1,11 +1,9 @@
 const API_BASE_URL = "/api";
 
 /**
- * Cliente HTTP do frontend.
- *
- * Os endpoints serão disponibilizados pelo servidor C (CivetWeb).
- * Não há dados simulados: chamadas só devem ser feitas quando o backend
- * estiver em execução e os endpoints correspondentes estiverem implementados.
+ * Cliente HTTP do frontend para a API nativa do servidor C (CivetWeb).
+ * O backend mantém o estado autoritativo da partida; o frontend apenas o
+ * consulta e envia comandos por meio dos endpoints /api.
  */
 export async function apiRequest(path, options = {}) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;

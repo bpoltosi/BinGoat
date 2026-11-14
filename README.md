@@ -80,6 +80,10 @@ gcc -std=c11 -Wall -Wextra -Wpedantic -O2 TrabalhoBingo.c bingo_engine.c -o bing
 
 O workflow `.github/workflows/c-server.yml` valida o build do frontend, servidor C e proxy no Linux/GCC, além da compilação MinGW-w64 no Windows.
 
+## Manutenção do repositório
+
+Consulte [docs/REPOSITORY-AUDIT.md](docs/REPOSITORY-AUDIT.md) para o inventário de arquivos, decisões de manutenção e itens que não devem ser removidos.
+
 ## API
 
 - `GET /api/health`
