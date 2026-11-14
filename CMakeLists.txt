@@ -46,9 +46,21 @@ if(NOT MSVC)
     target_compile_options(bingo_engine PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+add_library(bingo_http_json STATIC backend/http_json.c)
+target_include_directories(bingo_http_json PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}/backend"
+    "${civetweb_SOURCE_DIR}/include"
+    "${cjson_SOURCE_DIR}"
+)
+target_link_libraries(bingo_http_json PUBLIC civetweb-c-library cjson)
+if(NOT MSVC)
+    target_compile_options(bingo_http_json PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 add_executable(bingo-server backend/server.c)
 target_link_libraries(bingo-server PRIVATE
     bingo_engine
+    bingo_http_json
     civetweb-c-library
     cjson
     Threads::Threads
@@ -60,6 +72,12 @@ target_include_directories(bingo-server PRIVATE
 )
 if(NOT MSVC)
     target_compile_options(bingo-server PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+if(BUILD_TESTING)
+    add_executable(test-http-json tests/test-http-json.c)
+    target_link_libraries(test-http-json PRIVATE bingo_http_json)
+    add_test(NAME http-json-parser COMMAND test-http-json)
 endif()
 
 install(TARGETS bingo-server RUNTIME DESTINATION bin)
