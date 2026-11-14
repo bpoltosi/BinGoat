@@ -256,7 +256,6 @@ invalid:
 }
 int bingo_api_init(void) {
     static const char *const initial[] = {"Jogador 1", "Jogador 2"};
-    bingoat_seed(0xB160A7U);
     lock_state(); state.ready = bingo_game_init(&state.game, 2, initial, 1); unlock_state();
     return state.ready;
 }
