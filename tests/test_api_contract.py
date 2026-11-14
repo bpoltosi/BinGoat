@@ -154,6 +154,9 @@ def main():
     expect(finished, "game did not reject a draw after reaching its terminal state")
     expect(len(full_drawn) == len(set(full_drawn)), "full game contained repeated draws")
     expect(1 <= len(full_drawn) <= 60, "full game draw count is outside 1..60")
+    terminal_state = game()
+    expect(all(player["wonRound"] is not None for player in terminal_state["players"]),
+           "terminal game did not report every player winner")
 
     # Manual marking, undo, and reset state.
     status, _ = request("/api/games/current/reset", "POST", {"newCards": False})
