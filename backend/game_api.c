@@ -231,7 +231,7 @@ static int mutate(struct mg_connection *c, void *data) {
         if (namesNode && !cJSON_IsArray(namesNode)) goto invalid;
         for (i = 0; i < count; i++) {
             const cJSON *entry;
-            if (i < 0 || i >= MAX_JOGADORES) goto invalid;
+            if (i >= MAX_JOGADORES) goto invalid;
             entry = namesNode ? cJSON_GetArrayItem(namesNode, i) : NULL;
             if (entry && !cJSON_IsString(entry)) goto invalid;
             if (entry && entry->valuestring) {
