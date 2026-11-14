@@ -322,7 +322,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (mg_init_library(0) == 0) {
+    if ((mg_init_library(MG_FEATURES_FILES) & MG_FEATURES_FILES) == 0) {
         fprintf(stderr, "Nao foi possivel inicializar a biblioteca CivetWeb.\n");
         return EXIT_FAILURE;
     }
